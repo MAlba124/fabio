@@ -11,4 +11,6 @@ project(pokerServer)
 
 add_subdirectory(test)
 
-add_executable(Server main.cpp)
+add_executable(Server main.cpp
+        server.cpp
+)
