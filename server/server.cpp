@@ -13,7 +13,7 @@ server::Server::Server(int portn)
 }
 
 void
-server::Server::doAccept(void)
+server::Server::doAccept()
 {
     this->ac.async_accept(
         [this](boost::system::error_code ec, asio::ip::tcp::socket socket)
@@ -40,11 +40,10 @@ server::Server::doAccept(void)
  * accept, send/recive
  */
 void
-server::Server::serve(void)
+server::Server::serve()
 {
     this->ioc.run();
 }
 
-server::Server::~Server(void)
-{
-}
+server::Server::~Server()
+= default;

@@ -13,4 +13,5 @@ add_subdirectory(test)
 
 add_executable(Server main.cpp
         server.cpp
+        config.cpp
 )

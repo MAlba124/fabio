@@ -1,28 +1,33 @@
-#include <boost/asio.hpp>
 #include <cstdlib>
 #include <exception>
 #include <iostream>
+#include <string>
 
 #include "./include/server.hpp"
+#include "./include/config.hpp"
+
+#define DEFAULT_CONFIG_FILE_NAME "example_config.toml"
 
 int
 main(int argc, char **argv)
 {
-    int port;
-    if (argc < 2)
+    std::string configFile;
+    for (int i = 0; i < argc; i++)
     {
-        std::cerr << argv[0] << " <port>\n";
-        return EXIT_FAILURE;
+        if ((!strcmp(argv[i], "-c") || !strcmp(argv[i], "--config-file")) && argc > i)
+            configFile = argv[++i];
     }
 
-    port = atoi(argv[1]);
+    if (configFile.empty()) configFile = DEFAULT_CONFIG_FILE_NAME;
 
     try
     {
-        server::Server s(port);
+        server::config::SConfig conf(configFile);
+
+        server::Server s(13000);
         s.serve();
     }
-    catch (std::exception& err)
+    catch (const std::exception& err)
     {
         std::cerr << err.what() << std::endl;
     }
