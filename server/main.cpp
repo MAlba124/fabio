@@ -24,7 +24,7 @@ main(int argc, char **argv)
         server::config::SConfig conf(configFile);
         server::config::ConfigOptions options = conf.parse();
 
-        server::Server s(13000);
+        server::Server s(options.port);
         s.serve();
     }
     catch (const std::exception& err)

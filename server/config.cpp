@@ -5,6 +5,12 @@
 #include "./include/config.hpp"
 #include "./include/toml.hpp"
 
+/* Default values that will be used if they were not provided in
+ * a configuration file */
+static const int DEFAULT_PORT          = 3000;
+static const char* DEFAULT_ADDRESS     = "127.0.0.1";
+static const char* DEFAULT_SERVER_NAME = "Poker";
+
 namespace config = server::config;
 
 config::SConfig::SConfig(const std::string& fn)
@@ -23,7 +29,11 @@ config::SConfig::SConfig(const std::string& fn)
 
 config::ConfigOptions
 config::SConfig::parse() {
-    return config::ConfigOptions { .serverName = "TestServer", .port = 130000, .address = "127.0.0.1" };
+    return config::ConfigOptions {
+        .serverName = this->tbl["Server"]["serverName"].value_or(DEFAULT_SERVER_NAME),
+        .port = this->tbl["Server"]["port"].value_or(DEFAULT_PORT),
+        .address = this->tbl["Server"]["address"].value_or(DEFAULT_ADDRESS)
+    };
 }
 
 config::SConfig::~SConfig()
