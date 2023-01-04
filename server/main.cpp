@@ -1,4 +1,3 @@
-#include <cstdlib>
 #include <exception>
 #include <iostream>
 #include <string>
@@ -23,6 +22,7 @@ main(int argc, char **argv)
     try
     {
         server::config::SConfig conf(configFile);
+        server::config::ConfigOptions options = conf.parse();
 
         server::Server s(13000);
         s.serve();

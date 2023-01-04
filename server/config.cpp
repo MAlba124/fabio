@@ -5,7 +5,9 @@
 #include "./include/config.hpp"
 #include "./include/toml.hpp"
 
-server::config::SConfig::SConfig(const std::string& fn)
+namespace config = server::config;
+
+config::SConfig::SConfig(const std::string& fn)
 {
     try
     {
@@ -19,5 +21,10 @@ server::config::SConfig::SConfig(const std::string& fn)
     std::cout << "Opened configuration file\n";
 }
 
-server::config::SConfig::~SConfig()
+config::ConfigOptions
+config::SConfig::parse() {
+    return config::ConfigOptions { .serverName = "TestServer", .port = 130000, .address = "127.0.0.1" };
+}
+
+config::SConfig::~SConfig()
     = default;
