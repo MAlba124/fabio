@@ -1,3 +1,7 @@
 [Server]
 serverName = "TESTSERVER"
 port = 1233
+
+[Game]
+maxConcurrentGames = 15
+maxPlayersPerGame = 6

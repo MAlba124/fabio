@@ -2,6 +2,7 @@
 #define _SERVER_HPP
 
 #include <boost/asio.hpp>
+#include <string>
 
 namespace asio = boost::asio;
 
@@ -11,11 +12,11 @@ namespace server
     private:
         asio::io_context ioc;
         asio::ip::tcp::acceptor ac;
-        void doAccept(void);
+        void doAccept();
     public:
-        Server(int portn);
-        void serve(void);
-        ~Server(void);
+        explicit Server(int portn, const std::string& addr);
+        void serve();
+        ~Server();
     };
 }
 
