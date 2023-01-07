@@ -10,13 +10,14 @@ game::Game::Game(int mp, std::string on)
 {
 }
 
+//game::Game::join(asio::ip::tcp::socket sock)
 int
-game::Game::join(asio::ip::tcp::socket sock)
+game::Game::join(asio::ip::tcp::socket)
 {
     if ((int)this->players.size() >= this->maxPlayers)
         return 1; // Enum with for error codes?
 
-    this->players.emplace_back("Default", 1000);
+    //this->players.emplace_back("Default", 1000);
     return 0;
 }
 
