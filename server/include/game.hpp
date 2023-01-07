@@ -9,8 +9,10 @@
 
 namespace asio = boost::asio;
 
-namespace game {
-    class Game {
+namespace game
+{
+    class Game
+   {
     private:
         int maxPlayers;
         std::string ownerNick;

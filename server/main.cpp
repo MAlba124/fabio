@@ -24,7 +24,7 @@ main(int argc, char **argv)
         server::config::SConfig conf(configFile);
         server::config::ConfigOptions options = conf.parse();
 
-        server::Server s(options.port, options.address);
+        server::Server s(options.port, options.address, options.maxConcurrentGames);
         s.serve();
     }
     catch (const std::exception& err)

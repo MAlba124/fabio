@@ -3,6 +3,9 @@
 
 #include <boost/asio.hpp>
 #include <string>
+#include <vector>
+
+#include "game.hpp"
 
 namespace asio = boost::asio;
 
@@ -12,11 +15,15 @@ namespace server
     private:
         asio::io_context ioc;
         asio::ip::tcp::acceptor ac;
-        void doAccept();
+        std::vector<game::Game> games;
+        int maxGames;
     public:
-        explicit Server(int portn, const std::string& addr);
+        explicit Server(int portn, const std::string& addr, int maxg);
         void serve();
         ~Server();
+    private:
+        int createNewGame(int mp, std::string owner);
+        void doAccept();
     };
 }
 

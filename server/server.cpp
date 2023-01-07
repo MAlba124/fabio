@@ -1,21 +1,22 @@
 #include <boost/asio.hpp>
 #include <iostream>
 #include <string>
+#include <utility>
 
 #include "./include/server.hpp"
 #include "./include/game.hpp"
 
 namespace asio = boost::asio;
 
-server::Server::Server(const int portn, const std::string& addr)
-    : ac(this->ioc, asio::ip::tcp::endpoint(asio::ip::address::from_string(addr),
-                                            portn))
+server::Server::Server(const int portn, const std::string& addr, int maxg)
+    : ac(this->ioc, asio::ip::tcp::endpoint(asio::ip::address::from_string(addr), portn)),
+      maxGames(maxg)
 {
     /* "Prime" the ioc object with work */
     this->doAccept();
 
     /* Create a game for testing purposes */
-    this->games.emplace_back(2, "Admin");
+    this->createNewGame(2, "Admin");
 }
 
 void
@@ -28,13 +29,16 @@ server::Server::doAccept()
             {
                 std::cout << "New client connected from: "
                           << socket.remote_endpoint().address().to_string()
+                          << ':'
+                          << socket.remote_endpoint().port()
                           << std::endl;
-                games.back().join(socket);
+                std::make_shared<game::player::Player>("Default", 1000, std::move(socket))
+                        ->start();
+                //games.back().join(std::move(socket));
             }
             else
             {
                 std::cerr << ec.what() << std::endl;
-                socket.close();
             }
 
             this->doAccept();
@@ -50,6 +54,18 @@ void
 server::Server::serve()
 {
     this->ioc.run();
+}
+
+//int server::Server::createNewGame(int mp, std::string owner) {
+int
+server::Server::createNewGame(int, std::string)
+{
+    if ((int)this->games.size() >= this->maxGames)
+        return 1;
+
+    //this->games.emplace_back(mp, std::move(owner));
+
+    return 0;
 }
 
 server::Server::~Server()
