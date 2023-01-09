@@ -16,10 +16,10 @@ namespace game::player {
    {
     private:
         std::string nickname;
-        int balance;
         asio::ip::tcp::socket playerSocket;
+        int balance;
+        bool isInGame;
         net::common::Message msg;
-        //char data[1024];
     public:
         explicit Player(std::string  n, int bal, asio::ip::tcp::socket sock);
         ~Player();

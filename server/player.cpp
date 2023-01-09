@@ -10,8 +10,9 @@ namespace asio = boost::asio;
 
 player::Player::Player(std::string n, int bal, asio::ip::tcp::socket sock)
     : nickname(std::move(n)),
+      playerSocket(std::move(sock)),
       balance(bal),
-      playerSocket(std::move(sock))
+      isInGame(false)
 {
 }
 
@@ -26,17 +27,20 @@ player::Player::readHeader()
 {
     auto self(shared_from_this());
     asio::async_read(this->playerSocket,
-                     asio::buffer(this->msg.getData(), this->msg.headerLength),
+                     asio::buffer(this->msg.getData(), net::common::Message::headerLength),
     [this, self](boost::system::error_code ec, std::size_t)
     {
         this->msg.decodeHeader();
         if (!ec && this->msg.getReceivedBytes())
         {
+            std::cout << "Message type: " << (int)this->msg.getRecvMt() << std::endl;
             readBody();
         }
         else
         {
-            std::cerr << ec.what() << std::endl;
+            if (isInGame) std::cout << "Left game\n";
+            playerSocket.close();
+            std::cout << "Client left\n";
         }
     });
 }
@@ -46,13 +50,13 @@ player::Player::readBody()
 {
     auto self(shared_from_this());
     asio::async_read(this->playerSocket,
-                     asio::buffer(this->msg.getData(), this->msg.bodyLength),
+                     asio::buffer(this->msg.getBody(), this->msg.getReceivedBytes()),
     [this, self](boost::system::error_code ec, std::size_t length)
     {
         if (!ec)
         {
              std::cout << "Received: " << length << " bytes: "
-                       << msg.getData() << std::endl;
+                       << msg.getBody() << std::endl;
 
              readHeader();
         }
@@ -62,6 +66,7 @@ player::Player::readBody()
         }
     });
 }
+
 
 game::player::Player::~Player()
     = default;
