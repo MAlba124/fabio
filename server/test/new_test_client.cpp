@@ -4,8 +4,6 @@
 #include <thread>
 #include <cstdlib>
 
-#include <unistd.h>
-
 #include "../../net/client/include/client.hpp"
 
 namespace asio = boost::asio;
