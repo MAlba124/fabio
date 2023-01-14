@@ -1,0 +1,21 @@
+cmake_minimum_required(VERSION 3.24)
+
+project(poker VERSION 0.0.1 DESCRIPTION "Poker game")
+
+if(${BUILD_ALL})
+    set(BUILD_SERVER True)
+    set(BUILD_CLIENT_LIB True)
+    set(BUILD_SERVER_TESTS True)
+endif()
+
+if(${BUILD_SERVER})
+    add_subdirectory(server)
+endif()
+if(${BUILD_CLIENT_LIB})
+    add_subdirectory(net/client)
+    list(APPEND EXTRA_LIBS client)
+    list(APPEND EXTRA_INCLUDES "net/client/include")
+endif()
+if(${BUILD_SERVER_TESTS})
+    add_subdirectory(server/test)
+endif()

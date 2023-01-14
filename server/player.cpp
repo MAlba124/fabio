@@ -10,8 +10,9 @@ namespace asio = boost::asio;
 
 player::Player::Player(std::string n, int bal, asio::ip::tcp::socket sock)
     : nickname(std::move(n)),
+      playerSocket(std::move(sock)),
       balance(bal),
-      playerSocket(std::move(sock))
+      isInGame(false)
 {
 }
 
@@ -25,18 +26,32 @@ void
 player::Player::readHeader()
 {
     auto self(shared_from_this());
-    asio::async_read(this->playerSocket,
-                     asio::buffer(this->msg.getData(), this->msg.headerLength),
+    asio::async_read(this->playerSocket, asio::buffer(this->msg.getData(),
+                                  net::common::Message::headerLength),
     [this, self](boost::system::error_code ec, std::size_t)
     {
-        this->msg.decodeHeader();
-        if (!ec && this->msg.getReceivedBytes())
+        if (!ec)
         {
-            readBody();
+            this->msg.decodeHeader();
+            std::cout << "Message type: "
+                      << (int)this->msg.getRecvMt()
+                      << std::endl;
+
+            if (this->msg.getRecvMt() == net::common::messageType::Ping)
+            {
+                this->sendPong();
+            }
+
+            if (this->msg.getReceivedBytes() > 0)
+                this->readBody();
+            else
+                this->readHeader();
         }
         else
         {
-            std::cerr << ec.what() << std::endl;
+            std::cout << "Player disconnected" << std::endl;
+            /* The socket should already be shutdowned by the client */
+            this->playerSocket.close();
         }
     });
 }
@@ -46,13 +61,23 @@ player::Player::readBody()
 {
     auto self(shared_from_this());
     asio::async_read(this->playerSocket,
-                     asio::buffer(this->msg.getData(), this->msg.bodyLength),
+                     asio::buffer(this->msg.getBody(),
+                                  this->msg.getReceivedBytes()),
     [this, self](boost::system::error_code ec, std::size_t length)
     {
         if (!ec)
         {
              std::cout << "Received: " << length << " bytes: "
-                       << msg.getData() << std::endl;
+                       << msg.getBody() << std::endl;
+
+            switch (msg.getRecvMt()) {
+                case net::common::messageType::Ping:
+                    this->sendPong();
+                    break;
+                case net::common::messageType::None:
+                default:
+                    break;
+            }
 
              readHeader();
         }
@@ -62,6 +87,51 @@ player::Player::readBody()
         }
     });
 }
+
+void
+player::Player::sendMessage(net::common::Message& sMsg)
+{
+    bool writeInProgress = !writeMsgQue.empty();
+    writeMsgQue.push_back(sMsg);
+    if (!writeInProgress) write();
+}
+
+void
+player::Player::write()
+{
+    asio::async_write(this->playerSocket,
+          asio::buffer(writeMsgQue.front().getData(),
+                       writeMsgQue.front().length()),
+          [this](boost::system::error_code ec, std::size_t /*length*/)
+          {
+              if (!ec)
+              {
+                  this->writeMsgQue.pop_front();
+                  if (!this->writeMsgQue.empty())
+                  {
+                      this->write();
+                  }
+              }
+              else
+              {
+                  std::cerr << "Failed to write: " << ec.what() << std::endl;
+                  this->playerSocket.close();
+              }
+          });
+
+}
+
+
+void
+player::Player::sendPong()
+{
+    this->msg.clearData();
+    std::memcpy(this->msg.getBody(), "!\0", 2);
+    this->msg.setSendMt(net::common::messageType::Pong);
+    this->msg.encodeHeader();
+    this->sendMessage(msg);
+}
+
 
 game::player::Player::~Player()
     = default;

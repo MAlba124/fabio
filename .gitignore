@@ -1,3 +1,4 @@
-.idea/
+./.idea/
 ./server/tmp_build
 ./server/cmake-build-debug
+./build

@@ -14,3 +14,11 @@ project(test)
 add_executable(${PROJECT_NAME}_client
         test_client.cpp
 )
+
+add_executable(${PROJECT_NAME}_new
+        new_test_client.cpp
+)
+
+target_link_libraries(${PROJECT_NAME}_new
+        PUBLIC ${EXTRA_LIBS}
+)

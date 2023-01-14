@@ -9,7 +9,8 @@
 namespace asio = boost::asio;
 
 server::Server::Server(const int portn, const std::string& addr, int maxg)
-    : ac(this->ioc, asio::ip::tcp::endpoint(asio::ip::address::from_string(addr), portn)),
+    : ac(this->ioc,
+         asio::ip::tcp::endpoint(asio::ip::address::from_string(addr), portn)),
       maxGames(maxg)
 {
     /* "Prime" the ioc object with work */
@@ -32,9 +33,9 @@ server::Server::doAccept()
                           << ':'
                           << socket.remote_endpoint().port()
                           << std::endl;
-                std::make_shared<game::player::Player>("Default", 1000, std::move(socket))
+                std::make_shared<game::player::Player>("Default", 1000,
+                                                       std::move(socket))
                         ->start();
-                //games.back().join(std::move(socket));
             }
             else
             {
@@ -57,15 +58,15 @@ server::Server::serve()
 }
 
 //int server::Server::createNewGame(int mp, std::string owner) {
-int
-server::Server::createNewGame(int, std::string)
+bool
+server::Server::createNewGame(int, const std::string&)
 {
     if ((int)this->games.size() >= this->maxGames)
-        return 1;
+        return false;
 
     //this->games.emplace_back(mp, std::move(owner));
 
-    return 0;
+    return true;
 }
 
 server::Server::~Server()
