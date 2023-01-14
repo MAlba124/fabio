@@ -9,10 +9,10 @@ using boost::asio::ip::tcp;
 
 typedef std::deque<net::common::Message> chat_message_queue;
 
-class chat_client
+class Client
 {
 public:
-    chat_client(boost::asio::io_context& io_context,
+    Client(boost::asio::io_context& io_context,
                 const tcp::resolver::results_type& endpoints)
             : io_context_(io_context),
               socket_(io_context)
@@ -131,19 +131,18 @@ int main(int argc, char* argv[])
 
         tcp::resolver resolver(io_context);
         auto endpoints = resolver.resolve(argv[1], argv[2]);
-        chat_client c(io_context, endpoints);
+        Client c(io_context, endpoints);
 
         std::thread t([&io_context](){ io_context.run(); });
 
-        char line[net::common::Message::bodyMaxLength + 1];
-        while (std::cin.getline(line, net::common::Message::bodyMaxLength + 1))
-        {
-            net::common::Message msg;
-            msg.setBodyLength(std::strlen(line));
-            std::memcpy(msg.getBody(), line, msg.getBodyLength());
-            msg.encodeHeader();
-            c.write(msg);
-        }
+        net::common::Message msg;
+
+        std::string line = "Ping!";
+        msg.setBodyLength(line.size());
+        std::memcpy(msg.getBody(), line.data(), msg.getBodyLength());
+        msg.setSendMt(net::common::messageType::Ping);
+        msg.encodeHeader();
+        c.write(msg);
 
         c.close();
         t.join();

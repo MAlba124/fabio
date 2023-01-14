@@ -8,11 +8,4 @@ add_compile_options(
         -O2
 )
 
-project(pokerServer)
-
-add_executable(Server main.cpp
-        server.cpp
-        config.cpp
-        game.cpp
-        player.cpp
-)
+add_library(client client.cpp)

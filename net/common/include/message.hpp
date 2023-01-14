@@ -17,8 +17,11 @@
 namespace net::common
 {
     enum class messageType:char {
-        None,
-        Test
+        InvalidMessage     = -2,
+        InvalidMessageType = -1,
+        None               = 0,
+        Ping               = 1,
+        Pong               = 2
     };
 
     class Message
@@ -92,6 +95,11 @@ namespace net::common
         [[nodiscard]] messageType getRecvMt() const
         {
             return this->recvMt;
+        }
+
+        void clearData()
+        {
+            memset(&(this->data), '\0', BODY_MAX_LENGTH + HEADER_LENGTH);
         }
     private:
         char data[BODY_MAX_LENGTH + HEADER_LENGTH]{};
