@@ -96,7 +96,7 @@ client::Client::readBody()
     {
         asio::async_read(this->socket,
              asio::buffer(this->msg.getBody(), this->msg.getReceivedBytes()),
-             [this](boost::system::error_code ec, std::size_t length)
+             [this](boost::system::error_code ec, std::size_t)
              {
                  if (!ec)
                  {
