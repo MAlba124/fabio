@@ -1,6 +1,7 @@
 #include <exception>
 #include <iostream>
 #include <string>
+#include <cstdlib>
 
 #include "./include/server.hpp"
 #include "./include/config.hpp"
@@ -11,10 +12,18 @@ int
 main(int argc, char **argv)
 {
     std::string configFile;
-    for (int i = 0; i < argc; i++)
+    for (int i = 1; i < argc; i++)
     {
-        if ((!strcmp(argv[i], "-c") || !strcmp(argv[i], "--config-file")) && argc > i)
+        if ((!strcmp(argv[i], "-c") || !strcmp(argv[i], "--config-file"))
+            && argc > i)
             configFile = argv[++i];
+        else
+        {
+            std::cerr << "Invalid argument: "
+                      << argv[i]
+                      << std::endl;
+            return EXIT_FAILURE;
+        }
     }
 
     if (configFile.empty()) configFile = DEFAULT_CONFIG_FILE_NAME;
@@ -24,7 +33,8 @@ main(int argc, char **argv)
         server::config::SConfig conf(configFile);
         server::config::ConfigOptions options = conf.parse();
 
-        server::Server s(options.port, options.address, options.maxConcurrentGames);
+        server::Server s(options.port, options.address,
+                         options.maxConcurrentGames);
         s.serve();
     }
     catch (const std::exception& err)
@@ -32,5 +42,5 @@ main(int argc, char **argv)
         std::cerr << err.what() << std::endl;
     }
 
-    return 0;
+    return EXIT_SUCCESS;
 }
