@@ -1,3 +1,11 @@
+/**
+ * @mainpage Poker Game Documentation
+ *
+ * @section Intro
+ * Poker game
+ */
+
+#include <boost/log/trivial.hpp>
 #include <exception>
 #include <iostream>
 #include <string>
@@ -5,6 +13,7 @@
 
 #include "./include/server.hpp"
 #include "./include/config.hpp"
+#include "./include/log.hpp"
 
 #define DEFAULT_CONFIG_FILE_NAME "example_config.toml"
 
@@ -28,18 +37,30 @@ main(int argc, char **argv)
 
     if (configFile.empty()) configFile = DEFAULT_CONFIG_FILE_NAME;
 
+    server::config::SConfig conf(configFile);
+
+    /* Exit if we could not open the confifuration file */
+    if (!conf.success())
+    {
+        std::cerr << "Failed to open configuration file" << std::endl;
+        return EXIT_FAILURE;
+    }
+    //else ?
+
+    server::config::ConfigOptions options = conf.parse();
+
+    servLog::init(options.logFile);
+    BOOST_LOG_TRIVIAL(info) << "Logger test 123...";
+
     try
     {
-        server::config::SConfig conf(configFile);
-        server::config::ConfigOptions options = conf.parse();
-
         server::Server s(options.port, options.address,
                          options.maxConcurrentGames);
         s.serve();
     }
     catch (const std::exception& err)
     {
-        std::cerr << err.what() << std::endl;
+        BOOST_LOG_TRIVIAL(fatal) << err.what();
     }
 
     return EXIT_SUCCESS;

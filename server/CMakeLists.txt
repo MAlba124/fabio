@@ -10,9 +10,15 @@ add_compile_options(
 
 project(pokerServer)
 
+set(Boost_USE_STATIC_LIBS ON)
+find_package(Boost REQUIRED COMPONENTS log_setup log)
+
 add_executable(Server main.cpp
         server.cpp
         config.cpp
         game.cpp
         player.cpp
+        log.cpp
 )
+
+target_link_libraries(Server ${Boost_LIBRARIES})

@@ -1,4 +1,5 @@
 #include <boost/asio.hpp>
+#include <boost/log/trivial.hpp>
 #include <iostream>
 #include <string>
 #include <thread>
@@ -82,7 +83,7 @@ client::Client::readHeader()
             else
             {
                 this->close();
-                std::cerr << "Error: " << ec.what() << std::endl;
+                BOOST_LOG_TRIVIAL(error) << ec.what();
             }
         });
     });
@@ -132,7 +133,7 @@ client::Client::write()
              }
              else
              {
-                 std::cerr << "Failed to write: " << ec.what() << std::endl;
+                 BOOST_LOG_TRIVIAL(error) << ec.what();
                  this->socket.close();
              }
          });

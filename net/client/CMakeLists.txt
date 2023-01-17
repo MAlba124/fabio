@@ -8,4 +8,9 @@ add_compile_options(
         -O2
 )
 
+set(Boost_USE_STATIC_LIBS ON)
+find_package(Boost REQUIRED COMPONENTS log)
+
 add_library(client client.cpp)
+
+target_link_libraries(client ${Boost_LIBRARIES})

@@ -16,6 +16,9 @@
 
 namespace net::common
 {
+    /**
+     * @brief Message type enum
+     */
     enum class messageType:char {
         InvalidMessage     = -2,
         InvalidMessageType = -1,
@@ -24,20 +27,42 @@ namespace net::common
         Pong               = 2
     };
 
+    /**
+     * @brief Message class
+     */
     class Message
     {
     public:
+        /**
+         * @brief The length of message header in bytes
+         */
         static const std::size_t headerLength = HEADER_LENGTH;
+
+        /**
+         * @brief The maximum length of the message body
+         */
         static const std::size_t bodyMaxLength   = BODY_MAX_LENGTH;
     public:
+        /**
+         * @brief Constructor
+         */
         Message()  = default;
+
+        /**
+         * @brief Deconstructor
+         */
         ~Message() = default;
 
+        /**
+         * @brief Decode the message header
+         * @return The length of the received message body in bytes
+         */
         std::size_t decodeHeader()
         {
             char mt[HEADER_MSIZE + 1] = "";
             std::strncat(mt, this->data, HEADER_MSIZE);
-            this->recvMt = static_cast<messageType>(std::atoi(mt)); // TODO: Make it secure
+            // TODO: Make it secure:
+            this->recvMt = static_cast<messageType>(std::atoi(mt));
 
             char len[HEADER_LSIZE + 1] = "";
             std::strncat(len, this->data + HEADER_MSIZE, HEADER_LSIZE);
@@ -49,6 +74,9 @@ namespace net::common
             return this->received;
         }
 
+        /**
+         * @brief Encode the message header
+         */
         void encodeHeader()
         {
             char header[headerLength + 1] = "";
@@ -57,55 +85,103 @@ namespace net::common
             std::memcpy(this->getData(), header, headerLength);
         }
 
+        /**
+         * @brief Set the length of the message body
+         * @param b The length in bytes
+         */
         void setBodyLength(std::size_t b)
         {
             this->bodyLength = b;
         }
 
+        /**
+         * @return The size of the body in bytes
+         */
         [[nodiscard]] std::size_t getBodyLength() const
         {
             return this->bodyLength;
         }
 
+        /**
+         * @return The length of the whole message in bytes
+         */
         [[nodiscard]] std::size_t length() const
         {
             return headerLength + this->bodyLength;
         }
 
+        /**
+         * @return The length of the received body
+         */
         [[nodiscard]] std::size_t getReceivedBytes() const
         {
             return this->received;
         }
 
+        /**
+         * @return A pointer to the message data
+         */
         char *getData()
         {
             return this->data;
         }
 
+        /**
+         * @return A pointer to the message body
+         */
         char *getBody()
         {
             return this->data + headerLength;
         }
 
+        /**
+         * @brief Set the send message type
+         * @param t The message type
+         */
         void setSendMt(messageType t)
         {
             this->sendMt = t;
         }
 
+        /**
+         * @return The received message type
+         */
         [[nodiscard]] messageType getRecvMt() const
         {
             return this->recvMt;
         }
 
+        /**
+         * @brief Clear the message data
+         */
         void clearData()
         {
             memset(&(this->data), '\0', BODY_MAX_LENGTH + HEADER_LENGTH);
         }
     private:
+        /**
+         * @brief Used to store the message data
+         */
         char data[BODY_MAX_LENGTH + HEADER_LENGTH]{};
+
+        /**
+         * @brief Used to store the received message header size in bytes
+         */
         std::size_t received = 0;
+
+        /**
+         * @brief Used to store the received message body size in bytes
+         */
         std::size_t bodyLength = 0;
+
+        /**
+         * @brief The message type to send
+         */
         messageType sendMt = messageType::None;
+
+        /**
+         * @brief The received message type
+         */
         messageType recvMt = messageType::None;
     };
 }

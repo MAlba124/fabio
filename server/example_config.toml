@@ -2,6 +2,9 @@
 serverName = "TESTSERVER"
 port = 1233
 
+[Logging]
+output = "server_log.txt"
+
 [Game]
 maxConcurrentGames = 1
 maxPlayersPerGame = 6

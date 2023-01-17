@@ -1,4 +1,5 @@
 #include <boost/asio.hpp>
+#include <boost/log/trivial.hpp>
 #include <iostream>
 #include <string>
 #include <utility>
@@ -28,14 +29,11 @@ server::Server::doAccept()
         {
             if (!ec)
             {
-                std::cout << "New client connected from: "
-                          << socket.remote_endpoint().address().to_string()
-                          << ':'
-                          << socket.remote_endpoint().port()
-                          << std::endl;
+                BOOST_LOG_TRIVIAL(info) << "New client conntected from: "
+                                        << socket.remote_endpoint().address();
                 std::make_shared<game::player::Player>("Default", 1000,
                                                        std::move(socket))
-                        ->start();
+                                                       ->start();
             }
             else
             {
