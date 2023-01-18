@@ -6,3 +6,8 @@
 
 ## Building
 TODO
+
+## License
+All files related to this project is licensed under the GNU General Public License v3.
+
+View the license [here](LICENSE)
