@@ -10,8 +10,13 @@
 namespace asio = boost::asio;
 
 server::Server::Server(const int portn, const std::string& addr, int maxg)
-    : ac(this->ioc,
-         asio::ip::tcp::endpoint(asio::ip::address::from_string(addr), portn)),
+    : ac(
+        this->ioc,
+        asio::ip::tcp::endpoint(
+            asio::ip::address::from_string(addr),
+            portn
+        )
+    ),
       maxGames(maxg)
 {
     /* "Prime" the ioc object with work */
@@ -30,14 +35,19 @@ server::Server::doAccept()
             if (!ec)
             {
                 BOOST_LOG_TRIVIAL(info) << "New client conntected from: "
-                                        << socket.remote_endpoint().address();
-                std::make_shared<game::player::Player>("Default", 1000,
-                                                       std::move(socket))
-                                                       ->start();
+                                        << socket.remote_endpoint().address()
+                                        << ":"
+                                        << socket.remote_endpoint().port();
+
+                std::make_shared<game::player::Player>
+                (
+                        "Default", 1000, std::move(socket)
+                )->start();
             }
             else
             {
-                std::cerr << ec.what() << std::endl;
+                BOOST_LOG_TRIVIAL(error) << "Failed to accept: "
+                                         << ec.what();
             }
 
             this->doAccept();

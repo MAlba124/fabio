@@ -1,4 +1,5 @@
 #include <boost/asio.hpp>
+#include <boost/log/trivial.hpp>
 #include <utility>
 #include <string>
 #include <iostream>
@@ -49,7 +50,8 @@ player::Player::readHeader()
         }
         else
         {
-            std::cout << "Player disconnected" << std::endl;
+            BOOST_LOG_TRIVIAL(info) << "Player disconnected";
+
             /* The socket should already be shutdowned by the client */
             this->playerSocket.close();
         }
@@ -114,7 +116,8 @@ player::Player::write()
               }
               else
               {
-                  std::cerr << "Failed to write: " << ec.what() << std::endl;
+                  BOOST_LOG_TRIVIAL(error) << "Failed to write to client :"
+                                           << ec.what();
                   this->playerSocket.close();
               }
           });

@@ -50,12 +50,13 @@ main(int argc, char **argv)
     server::config::ConfigOptions options = conf.parse();
 
     servLog::init(options.logFile);
-    BOOST_LOG_TRIVIAL(info) << "Logger test 123...";
+    BOOST_LOG_TRIVIAL(info) << "Initialised logger";
 
     try
     {
         server::Server s(options.port, options.address,
                          options.maxConcurrentGames);
+        BOOST_LOG_TRIVIAL(info) << "Attempting to start server";
         s.serve();
     }
     catch (const std::exception& err)
