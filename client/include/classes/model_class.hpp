@@ -1,7 +1,7 @@
 #ifndef MODEL_CLASS_H_
 #define MODEL_CLASS_H_
 
-#include <glad/glad.h> 
+#include "../glad/glad.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
