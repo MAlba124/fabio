@@ -89,6 +89,18 @@ int main()
         objects.push_back(ourModel);
         object_axis.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
     }
+    if(ImGui::Button("Add bad chair"))
+    {
+        Model ourModel("include/objects/Bad_Chair.obj");
+        objects.push_back(ourModel);
+        object_axis.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
+    }
+    if(ImGui::Button("Add table"))
+    {
+        Model ourModel("include/objects/Table.obj");
+        objects.push_back(ourModel);
+        object_axis.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
+    }
     ImGui::End();
 
 
@@ -98,7 +110,8 @@ int main()
     glm::mat4 projection = glm::mat4(1.0f);
 
     projection = glm::perspective(glm::radians(45.0f), (float)800 / (float)600, 0.1f, 100.0f);
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -10.0f));
+    view = glm::translate(view, glm::vec3(0.0f, -1.0f, -10.0f));
+    view = glm::rotate(view, glm::radians(30.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     ourShader.setMat4("projection", projection);
     ourShader.setMat4("view", view);
 
@@ -108,11 +121,15 @@ int main()
         std::string nameY = "y ";
         std::string nameZ = "z ";
         nameX += std::to_string(i);
+        nameY += std::to_string(i);
+        nameZ += std::to_string(i);
         ImGui::Begin("Edit");
-        if(ImGui::Button(nameX.c_str()))
-            object_axis[i].x += 0.1f;
+//        if(ImGui::Button(nameX.c_str()))
+ //           object_axis[i].x += 0.1f;
 
         ImGui::SliderFloat(nameX.c_str(), &object_axis[i].x, -1.0f, 1.0f);
+        ImGui::SliderFloat(nameY.c_str(), &object_axis[i].y, -1.0f, 1.0f);
+        ImGui::SliderFloat(nameZ.c_str(), &object_axis[i].z, -1.0f, 1.0f);
         ImGui::End();
 
         glm::mat4 model = glm::mat4(1.0f);
