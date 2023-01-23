@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <thread>
+#include <sstream>
 
 #include "./include/client.hpp"
 
@@ -97,10 +98,22 @@ client::Client::readBody()
     {
         asio::async_read(this->socket,
              asio::buffer(this->msg.getBody(), this->msg.getReceivedBytes()),
-             [this](boost::system::error_code ec, std::size_t)
+             [this](boost::system::error_code ec, std::size_t /* len */)
              {
                  if (!ec)
                  {
+                     std::basic_stringstream<char> ss(this->msg.getBody());
+                     std::string ts;
+                     ss >> ts;
+                     if (ss.fail())
+                         std::cout << "Error: Invalid input" << std::endl;
+                     else
+                         std::cout << ts << std::endl;
+                     //else if (ss.eof())
+                     // while (!s.eof()) { ... }
+                     //    std::cout << "Error: Unexpected end of input"
+                     //              << std::endl;
+
                      this->readHeader();
                  }
                  else
@@ -108,7 +121,6 @@ client::Client::readBody()
                      std::cerr << ec.what() << std::endl;
                  }
              });
-
     });
 }
 

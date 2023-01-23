@@ -1,15 +1,15 @@
 #include <boost/asio.hpp>
 #include <boost/log/trivial.hpp>
-#include <iostream>
 #include <string>
 #include <utility>
 
 #include "./include/server.hpp"
-#include "./include/game.hpp"
+#include "./include/player.hpp"
 
 namespace asio = boost::asio;
 
-server::Server::Server(const int portn, const std::string& addr, int maxg)
+server::Server::Server(const int portn, const std::string& addr, int maxg,
+                       int maxp)
     : ac(
         this->ioc,
         asio::ip::tcp::endpoint(
@@ -17,13 +17,13 @@ server::Server::Server(const int portn, const std::string& addr, int maxg)
             portn
         )
     ),
-      maxGames(maxg)
+      games(maxg, maxp)
 {
     /* "Prime" the ioc object with work */
     this->doAccept();
 
     /* Create a game for testing purposes */
-    this->createNewGame(2, "Admin");
+    //this->createNewGame(2, "Admin");
 }
 
 void
@@ -41,7 +41,7 @@ server::Server::doAccept()
 
                 std::make_shared<game::player::Player>
                 (
-                        "Default", 1000, std::move(socket)
+                        this->getPIDCount(), games, "Default", 1000, std::move(socket)
                 )->start();
             }
             else
@@ -65,16 +65,8 @@ server::Server::serve()
     this->ioc.run();
 }
 
-//int server::Server::createNewGame(int mp, std::string owner) {
-bool
-server::Server::createNewGame(int, const std::string&)
-{
-    if ((int)this->games.size() >= this->maxGames)
-        return false;
-
-    //this->games.emplace_back(mp, std::move(owner));
-
-    return true;
+game::player::playerID server::Server::getPIDCount() {
+    return this->pIDCount++;
 }
 
 server::Server::~Server()

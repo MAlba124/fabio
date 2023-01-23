@@ -25,12 +25,19 @@ main(void)
 
         ioContextThread = std::thread([&ioContext] { ioContext.run(); });
 
-
         net::common::Message msg;
         std::string line = "Ping!";
         msg.setBodyLength(line.size());
         std::memcpy(msg.getBody(), line.data(), msg.getBodyLength());
         msg.setSendMt(net::common::messageType::Ping);
+        msg.encodeHeader();
+        client.writeMsg(msg);
+
+        line = "TEASDASD";
+        msg.setBodyLength(line.size());
+        //msg.clearData();
+        std::memcpy(msg.getBody(), line.data(), msg.getBodyLength());
+        msg.setSendMt(net::common::messageType::ListGames);
         msg.encodeHeader();
         client.writeMsg(msg);
 

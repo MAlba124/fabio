@@ -24,7 +24,7 @@ servLog::init(const std::string& logFile)
 
             /* The log message format */
             logging::keywords::format =
-                    "[%TimeStamp%] [%Severity%] :: %Message%",
+                    "[ %TimeStamp% ] [ %Severity% ] :: %Message%",
 
             /* Enable automatic flushing */
             logging::keywords::auto_flush = true
@@ -32,12 +32,12 @@ servLog::init(const std::string& logFile)
 
     logging::core::get()->set_filter
     (
-            logging::trivial::severity >= logging::trivial::info
+            logging::trivial::severity >= logging::trivial::trace
     );
 
     /* Output to stdout too */
     logging::add_console_log(std::cout, boost::log::keywords::format =
-            "[%TimeStamp%] :: %Message%");
+            "[ \033[33m%TimeStamp%\033[0m ] [ \033[36m%Severity%\033[0m ] :: %Message%");
 
     logging::add_common_attributes();
 }

@@ -19,6 +19,7 @@ add_executable(Server main.cpp
         game.cpp
         player.cpp
         log.cpp
+        games.cpp
 )
 
 target_link_libraries(Server ${Boost_LIBRARIES})

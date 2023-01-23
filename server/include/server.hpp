@@ -1,11 +1,17 @@
 #ifndef _SERVER_HPP
-#define _SERVER_HPP
+#define _SERVER_HPP 1
 
 #include <boost/asio.hpp>
 #include <string>
-#include <vector>
 
-#include "game.hpp"
+/* Forward declarations to eliminate "'x' was has not been declared" error */
+namespace server
+{
+    class Server;
+}
+
+#include "./games.hpp"
+#include "./player.hpp"
 
 namespace asio = boost::asio;
 
@@ -29,13 +35,15 @@ namespace server
         /**
          * @brief Containing all the running/created games
          */
-        std::vector<game::Game> games;
+        //std::vector<game::Game> games;
+        Games games;
 
         /**
          * @brief The maximum amount of games that the server can
          * run concurrently
          */
-        int maxGames;
+        //int maxGames;
+        game::player::playerID pIDCount = 0;
     public:
         /**
          * @brief Constructor
@@ -44,25 +52,20 @@ namespace server
          * @param maxg Maximum amount of concurrent games running at any
          * given time
          */
-        explicit Server(int portn, const std::string& addr, int maxg);
+        explicit Server(int portn, const std::string& addr, int maxg, int maxp);
 
         /**
          * @brief Start listening and accepting clients
          */
         void serve();
 
+        game::player::playerID getPIDCount();
+
         /**
          * @brief Deconstructor
          */
         ~Server();
     private:
-        /**
-         * @param mp Maximum amount of players the game can have
-         * @param owner The nickname of the player that owns the game
-         * @return Returns true if the game was created
-         */
-        bool createNewGame(int mp, const std::string& owner);
-
         /**
          * @brief Accept function called after handling accepts
          */

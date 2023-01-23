@@ -1,3 +1,5 @@
+/* TODO: Write doc */
+
 #ifndef _PLAYER_HPP
 #define _PLAYER_HPP 1
 
@@ -6,7 +8,16 @@
 #include <memory>
 #include <deque>
 
+/* Forward declarations to eliminate "'x' was has not been declared" error */
+namespace game::player
+{
+    typedef unsigned int playerID;
+
+    class Player;
+}
+
 #include "../../net/common/include/message.hpp"
+#include "./games.hpp"
 
 namespace asio = boost::asio;
 
@@ -18,7 +29,14 @@ namespace game::player {
     class Player
             : public std::enable_shared_from_this<Player>
    {
-    private:
+   private:
+       playerID pID;
+
+        /**
+         * @brief TODO
+         */
+        server::Games& gamesServer;
+
        /**
         * @brief Name of the player
         */
@@ -51,14 +69,16 @@ namespace game::player {
     public:
         /**
          * @brief Constructor
+         * @param games
          * @param n Name of the player
          * @param bal The balance of the player
          * @param sock The socket to do I/O on
          */
-        explicit Player(std::string  n, int bal, asio::ip::tcp::socket sock);
+        explicit Player(playerID pid, server::Games& games, std::string  n,
+                        int bal, asio::ip::tcp::socket sock);
 
         /**
-         * @brief Decontrutor
+         * @brief Deconstructor
          */
         ~Player();
 
@@ -81,6 +101,11 @@ namespace game::player {
          * @brief Send a pong response
          */
         void sendPong();
+
+        /**
+         * @brief
+         */
+         void listGames();
 
         /**
          * @brief Send a message

@@ -1,13 +1,16 @@
-/*
- * Modified from:
- * https://www.boost.org/doc/libs/1_81_0/doc/html/boost_asio/example/cpp11/chat/chat_message.hpp
- */
-
 #ifndef _MESSAGE_HPP
 #define _MESSAGE_HPP 1
 
 #include <cstdlib>
 #include <cstring>
+
+/* Forward declarations to eliminate "'x' was has not been declared" error */
+namespace net::common
+{
+    enum class messageType:char;
+
+    class Message;
+}
 
 #define HEADER_LSIZE                                  4
 #define HEADER_MSIZE                                  4
@@ -24,7 +27,9 @@ namespace net::common
         InvalidMessageType = -1,
         None               = 0,
         Ping               = 1,
-        Pong               = 2
+        Pong               = 2,
+        JoinGame           = 3,
+        ListGames          = 4
     };
 
     /**
@@ -66,7 +71,7 @@ namespace net::common
 
             char len[HEADER_LSIZE + 1] = "";
             std::strncat(len, this->data + HEADER_MSIZE, HEADER_LSIZE);
-            this->received =  std::atoi(len); // TODO: Make it secure
+            this->received = std::atoi(len); // TODO: Make it secure
 
             if (this->received > bodyMaxLength)
                 return 0;
@@ -89,6 +94,7 @@ namespace net::common
          * @brief Set the length of the message body
          * @param b The length in bytes
          */
+         // TODO: Make this not neceseary
         void setBodyLength(std::size_t b)
         {
             this->bodyLength = b;
@@ -158,6 +164,14 @@ namespace net::common
         {
             memset(&(this->data), '\0', BODY_MAX_LENGTH + HEADER_LENGTH);
         }
+
+        /**
+         * @param id
+         * @return
+         */
+        //bool joinGame(game::gameID id)
+        //{
+        //}
     private:
         /**
          * @brief Used to store the message data
