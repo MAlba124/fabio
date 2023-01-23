@@ -28,11 +28,17 @@ namespace net::client
         std::deque<net::common::Message> writeMsgQue;
     public:
         /**
+         * @brief Constructor
          * @param ioc io_context to
+         */
+        Client(asio::io_context& ioc);
+
+        /**
+         * @brief Connect to a server
          * @param addr IP address of the server
          * @param port Port to connect to
          */
-        Client(asio::io_context& ioc, std::string addr, int port);
+        void connect(std::string addr, int port);
 
         /**
          * Destructor
@@ -55,7 +61,6 @@ namespace net::client
          */
         bool isConnected();
     private:
-        void connect();
         void readHeader();
         void readBody();
         void write();

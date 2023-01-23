@@ -15,7 +15,8 @@ main(void)
     {
         asio::io_context ioContext;
         std::thread ioContextThread;
-        net::client::Client client(ioContext, "127.0.0.1", 1233);
+        net::client::Client client(ioContext);
+        client.connect("127.0.0.1", 1233);
 
         if (!client.isConnected())
         {

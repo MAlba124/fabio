@@ -10,18 +10,18 @@
 namespace client = net::client;
 namespace asio = boost::asio;
 
-client::Client::Client(asio::io_context& ioc, std::string addr, int port = 3355)
+client::Client::Client(asio::io_context& ioc)
     : ioContext(ioc),
       resolver(ioc),
-      socket(ioc),
-      endpoint(asio::ip::address::from_string(addr), port)
+      socket(ioc)
 {
-    this->connect();
 }
 
 void
-client::Client::connect()
+client::Client::connect(std::string addr, int port = 3355)
 {
+    this->endpoint =
+            asio::ip::tcp::endpoint(asio::ip::address::from_string(addr), port);
 
     boost::system::error_code ec;
     this->socket.connect(this->endpoint, ec);
