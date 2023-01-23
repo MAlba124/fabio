@@ -6,7 +6,7 @@
 #include <thread>
 
 #include "../../common/include/message.hpp"
-//#include "../../common/include/tsDeque.hpp"
+#include "../../common/include/tsDeque.hpp"
 
 namespace asio = boost::asio;
 
@@ -18,6 +18,7 @@ namespace net::client
     class Client
     {
     private:
+        // TODO: Write doc
         asio::io_context& ioContext;
         asio::ip::tcp::resolver resolver;
         asio::ip::tcp::socket socket;
@@ -26,6 +27,7 @@ namespace net::client
         bool connected = false;
         std::thread iocThread;
         std::deque<net::common::Message> writeMsgQue;
+        net::common::TsDeque<net::common::Message> readMsgs;
     public:
         /**
          * @brief Constructor
@@ -57,10 +59,26 @@ namespace net::client
         void writeMsg(net::common::Message& sMsg);
 
         /**
+         * @brief Send a ping message to server
+         */
+        void sendPing();
+
+        /**
+         * @return The amount of messages left in readMsgs
+         */
+        unsigned long int messages();
+
+        /**
+         * @return The last message client received
+         */
+        net::common::Message lastMessage();
+
+        /**
          * @return True if the client is connected to a server
          */
         bool isConnected();
     private:
+        // TODO: write doc
         void readHeader();
         void readBody();
         void write();

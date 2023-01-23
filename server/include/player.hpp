@@ -30,6 +30,9 @@ namespace game::player {
             : public std::enable_shared_from_this<Player>
    {
    private:
+       /**
+        * @brief Player ID
+        */
        playerID pID;
 
         /**

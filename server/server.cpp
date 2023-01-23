@@ -21,9 +21,6 @@ server::Server::Server(const int portn, const std::string& addr, int maxg,
 {
     /* "Prime" the ioc object with work */
     this->doAccept();
-
-    /* Create a game for testing purposes */
-    //this->createNewGame(2, "Admin");
 }
 
 void
@@ -41,7 +38,8 @@ server::Server::doAccept()
 
                 std::make_shared<game::player::Player>
                 (
-                        this->getPIDCount(), games, "Default", 1000, std::move(socket)
+                        this->getPIDCount(), games, "Default", 1000,
+                        std::move(socket)
                 )->start();
             }
             else

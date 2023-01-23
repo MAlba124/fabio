@@ -33,13 +33,15 @@ client::Client::connect(std::string addr, int port = 3355)
 void
 client::Client::close()
 {
-    asio::post(this->ioContext,
-       [this]()
-       {
-            boost::system::error_code ec; // TODO: Do something with the error
-            socket.shutdown(asio::ip::tcp::socket::shutdown_both, ec);
-            socket.close();
-       });
+    if (this->isConnected())
+        asio::post(this->ioContext,
+           [this]()
+           {
+                boost::system::error_code ec; // TODO: Do something with the error
+                socket.shutdown(asio::ip::tcp::socket::shutdown_both, ec);
+                socket.close();
+                ioContext.stop();
+           });
 }
 
 void
@@ -84,7 +86,7 @@ client::Client::readHeader()
             else
             {
                 this->close();
-                BOOST_LOG_TRIVIAL(error) << ec.what();
+                std::cerr << ec.what() << std::endl;
             }
         });
     });
@@ -102,14 +104,13 @@ client::Client::readBody()
              {
                  if (!ec)
                  {
+                     this->readMsgs.push_back(this->msg);
                      std::basic_stringstream<char> ss(this->msg.getBody());
                      std::string ts;
                      ss >> ts;
                      if (ss.fail())
-                         std::cout << "Error: Invalid input" << std::endl;
-                     else
-                         std::cout << ts << std::endl;
-                     //else if (ss.eof())
+                         std::cerr << "Error: Invalid input" << std::endl;
+                     //else if (ss.eof()
                      // while (!s.eof()) { ... }
                      //    std::cout << "Error: Unexpected end of input"
                      //              << std::endl;
@@ -152,11 +153,33 @@ client::Client::write()
     });
 }
 
+void
+client::Client::sendPing()
+{
+    this->msg.setBodyLength(0);
+    this->msg.setSendMt(net::common::messageType::Ping);
+    this->msg.encodeHeader();
+    this->writeMsg(msg);
+}
+
+unsigned long int
+client::Client::messages()
+{
+    return this->readMsgs.size();
+}
+
+net::common::Message
+client::Client::lastMessage()
+{
+    net::common::Message m = this->readMsgs.front();
+    this->readMsgs.pop_front();
+    return m;
+}
+
 bool
 client::Client::isConnected()
 {
-    //return this->connected;
-    return this->socket.is_open();
+    return this->socket.is_open() && this->connected;
 }
 
 client::Client::~Client()

@@ -1,6 +1,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 
 #include <iostream>
+#include <thread>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -15,6 +16,8 @@
 
 #include <vector>
 #include <string>
+
+#include "../net/client/include/client.hpp"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
@@ -71,9 +74,12 @@ int main() {
     float returnVal = 0.0f;
     float returnVal2 = 0.0f;
 
-    //std::string serverAddress;
-    static char serverAddress[17];
-    int serverPort;
+    static char serverAddress[17] = "127.0.0.1";
+    unsigned short serverPort = 1233;
+
+    asio::io_context ioc;
+    std::thread ioContextThread;
+    net::client::Client client(ioc);
 
     while (!glfwWindowShouldClose(window)) {
         ImGui_ImplOpenGL3_NewFrame();
@@ -111,15 +117,51 @@ int main() {
         }
         ImGui::End();
 
-        ImGui::Begin("Connection form");
-        ImGui::InputText("IP address", serverAddress,
-                         IM_ARRAYSIZE(serverAddress));
-        ImGui::InputInt("Port", &serverPort, 0, 0, 0);
-        if (!connected) {
-            if (ImGui::Button("Connect"))
-                connected = true;
-        } else
-            ImGui::Text("Hello");
+        ImGui::Begin("Client");
+        if (!client.isConnected()) {
+            ImGui::InputTextWithHint("IP address", "Eg. 127.0.0.1",
+                                      serverAddress,
+                                      IM_ARRAYSIZE(serverAddress),
+                                      ImGuiInputTextFlags_CharsNoBlank);
+            ImGui::InputInt("Port", (int *)&serverPort, 0, 0, 0);
+
+            if (ImGui::Button("Connect")) /* If the button was pressed: */
+            {
+                /* Don't accept invalid port numbers */
+                if (serverPort <= 0 || serverPort > 65535)
+                    ImGui::Text("Port is not valid!"); // TODO: add color
+                else if (strlen(serverAddress) <= 0)
+                    ImGui::Text("Address is not valid!"); // TODO: add color
+                else
+                {
+                    /* Try to connect to the server */
+                    client.connect(serverAddress, serverPort);
+                    if (!client.isConnected())
+                    { // TODO: add color to text
+                        ImGui::Text("Failed to connect to server");
+                    }
+
+                    /* Run the client in a separate thread */
+                    ioContextThread = std::thread([&ioc] { ioc.run(); });
+                }
+            }
+        }
+        else
+        {
+            ImGui::Text("Connected to server");
+
+            while (client.messages())
+            {
+                net::common::Message message = client.lastMessage();
+                if (message.getRecvMt() == net::common::messageType::Pong)
+                    ImGui::Text("Received pong from server!");
+            }
+
+            if (ImGui::Button("Ping"))
+            {
+                client.sendPing();
+            }
+        }
         ImGui::End();
 
         glStencilFunc(GL_ALWAYS, 1, 0xFF);
@@ -195,6 +237,14 @@ int main() {
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
     glfwTerminate();
+
+    /* Disconnect from the server */
+    client.close();
+
+    /* Wait for the client thread to exit */
+    if (ioContextThread.joinable())
+        ioContextThread.join();
+
     return 0;
 }
 

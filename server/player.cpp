@@ -46,9 +46,15 @@ player::Player::readHeader()
                                      << (int)this->msg.getRecvMt();
 
             if (this->msg.getReceivedBytes() > 0)
+            {
                 this->readBody();
+            }
             else
+            {
+                if (this->msg.getRecvMt() == net::common::messageType::Ping)
+                    this->sendPong();
                 this->readHeader();
+            }
         }
         else
         {
