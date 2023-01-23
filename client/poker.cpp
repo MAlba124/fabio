@@ -66,9 +66,9 @@ int main()
   glEnable(GL_STENCIL_TEST);
   glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
-  Shader ourShader("include/shader.vs", "include/shader.fs");
+  Shader ourShader("../include/shader.vs", "../include/shader.fs");
 
-  Shader stencilShader("include/stencilSh.vs", "include/stencilSh.fs");
+  Shader stencilShader("../include/stencilSh.vs", "../include/stencilSh.fs");
 
   float returnVal = 0.0f;
   float returnVal2 = 0.0f;
@@ -93,25 +93,25 @@ int main()
 
     if(ImGui::Button("Add stool"))
     {
-        Model ourModel("include/objects/Bar_Stool.obj");
+        Model ourModel("../include/objects/Bar_Stool.obj");
         objects.push_back(ourModel);
         object_axis.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
     }
     if(ImGui::Button("Add card"))
     {
-        Model ourModel("include/objects/Diamonds.obj");
+        Model ourModel("../include/objects/Diamonds.obj");
         objects.push_back(ourModel);
         object_axis.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
     }
     if(ImGui::Button("Add bad chair"))
     {
-        Model ourModel("include/objects/Bad_Chair.obj");
+        Model ourModel("../include/objects/Bad_Chair.obj");
         objects.push_back(ourModel);
         object_axis.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
     }
     if(ImGui::Button("Add table"))
     {
-        Model ourModel("include/objects/Table.obj");
+        Model ourModel("../include/objects/Table.obj");
         objects.push_back(ourModel);
         object_axis.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
     }
