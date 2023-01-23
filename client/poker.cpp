@@ -24,6 +24,8 @@ vector<glm::vec3> object_axis;
 int width = 800;
 int height = 600;
 
+bool connected = false;
+
 
 int main()
 {
@@ -71,6 +73,10 @@ int main()
   float returnVal = 0.0f;
   float returnVal2 = 0.0f;
 
+  //std::string serverAddress;
+  static char serverAddress[17];
+  int serverPort;
+
   while(!glfwWindowShouldClose(window))
   {
     ImGui_ImplOpenGL3_NewFrame();
@@ -84,7 +90,7 @@ int main()
     ImGui::Text("hello, this is ImGui");
 
     ImGui::SliderFloat("float", &returnVal, -1.0f, 1.0f);
-    
+
     if(ImGui::Button("Add stool"))
     {
         Model ourModel("include/objects/Bar_Stool.obj");
@@ -109,6 +115,18 @@ int main()
         objects.push_back(ourModel);
         object_axis.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
     }
+    ImGui::End();
+
+    ImGui::Begin("Connection form");
+    ImGui::InputText("IP address", serverAddress, IM_ARRAYSIZE(serverAddress));
+    ImGui::InputInt("Port", &serverPort, 0, 0 ,0);
+    if (!connected)
+    {
+        if(ImGui::Button("Connect"))
+            connected = true;
+    }
+    else
+      ImGui::Text("Hello");
     ImGui::End();
 
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
