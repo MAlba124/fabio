@@ -74,9 +74,6 @@ int main() {
     float returnVal = 0.0f;
     float returnVal2 = 0.0f;
 
-    static char serverAddress[17] = "127.0.0.1";
-    unsigned short serverPort = 1233;
-
     asio::io_context ioc;
     std::thread ioContextThread;
     net::client::Client client(ioc);
@@ -118,7 +115,10 @@ int main() {
         ImGui::End();
 
         ImGui::Begin("Client");
-        if (!client.isConnected()) {
+        if (!client.isConnected())
+        {
+            static char serverAddress[17] = "";
+            unsigned short serverPort = 1233;
             ImGui::InputTextWithHint("IP address", "Eg. 127.0.0.1",
                                       serverAddress,
                                       IM_ARRAYSIZE(serverAddress),
@@ -127,10 +127,12 @@ int main() {
 
             if (ImGui::Button("Connect")) /* If the button was pressed: */
             {
+                boost::system::error_code errorCode;
+                asio::ip::address::from_string(serverAddress, errorCode);
                 /* Don't accept invalid port numbers */
                 if (serverPort <= 0 || serverPort > 65535)
                     ImGui::Text("Port is not valid!"); // TODO: add color
-                else if (strlen(serverAddress) <= 0)
+                else if (strlen(serverAddress) <= 0 || errorCode)
                     ImGui::Text("Address is not valid!"); // TODO: add color
                 else
                 {
