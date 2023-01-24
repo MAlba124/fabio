@@ -39,7 +39,7 @@ main(int argc, char **argv)
 
     server::config::SConfig conf(configFile);
 
-    /* Exit if we could not open the confifuration file */
+    /* Exit if we could not open the configuration file */
     if (!conf.success())
     {
         std::cerr << "Failed to open configuration file" << std::endl;

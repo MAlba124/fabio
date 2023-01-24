@@ -1,8 +1,6 @@
 #include <utility>
-#include <vector>
 
 #include "./include/game.hpp"
-#include "./include/player.hpp"
 
 game::Game::Game(game::gameID ID, int mp, std::string on)
     : ID(ID),

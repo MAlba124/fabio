@@ -4,7 +4,6 @@
 #include <utility>
 
 #include "./include/server.hpp"
-#include "./include/player.hpp"
 
 namespace asio = boost::asio;
 
@@ -31,7 +30,7 @@ server::Server::doAccept()
         {
             if (!ec)
             {
-                BOOST_LOG_TRIVIAL(info) << "New client conntected from: "
+                BOOST_LOG_TRIVIAL(info) << "New client connected from: "
                                         << socket.remote_endpoint().address()
                                         << ":"
                                         << socket.remote_endpoint().port();

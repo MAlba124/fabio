@@ -10,7 +10,7 @@ server::Games::Games(int maxGames, int maxPlayers)
 }
 
 server::gamesError
-server::Games::playerJoinGame(std::shared_ptr<game::player::Player> /*p*/,
+server::Games::playerJoinGame(const std::shared_ptr<game::player::Player> /*p*/,
                               game::gameID ID)
 {
     unsigned long int index = this->gs.size();

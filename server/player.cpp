@@ -6,8 +6,6 @@
 #include <iostream>
 
 #include "./include/player.hpp"
-#include "./include/server.hpp"
-#include "./include/games.hpp"
 
 namespace player = game::player;
 namespace asio = boost::asio;
