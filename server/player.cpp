@@ -2,22 +2,29 @@
 #include <boost/log/trivial.hpp>
 #include <utility>
 #include <string>
+#include <sstream>
 #include <vector>
 #include <iostream>
 
 #include "./include/player.hpp"
+#include "./include/games.hpp"
 
 namespace player = game::player;
 namespace asio = boost::asio;
 
-player::Player::Player(player::playerID pid, server::Games& games,
-                       std::string n, int bal, asio::ip::tcp::socket sock)
+player::Player::Player(player::playerID pid,
+                       std::shared_ptr<server::Games> games,
+                       std::string n,
+                       int bal,
+                       asio::ip::tcp::socket sock,
+                       std::shared_ptr<server::db::DB> db)
     : pID(pid),
-      gamesServer(games),
+      gamesServer(std::move(games)),
       nickname(std::move(n)),
       playerSocket(std::move(sock)),
       balance(bal),
-      isInGame(false)
+      isInGame(false),
+      db(db)
 {
 }
 
@@ -59,7 +66,8 @@ player::Player::readHeader()
             BOOST_LOG_TRIVIAL(info) << "Client disconnected ("
                                     << this->pID << ')';
 
-            /* The socket should already be shutdowned by the client */
+            /* It is expected that the socket has already been shut down by
+             * the client */
             this->playerSocket.close();
         }
     });
@@ -82,6 +90,9 @@ player::Player::readBody()
                     break;
                 case net::common::messageType::ListGames:
                     this->listGames();
+                    break;
+                case net::common::messageType::UserRegister:
+                    this->registerUser();
                     break;
                 case net::common::messageType::None:
                 default:
@@ -145,20 +156,36 @@ void
 player::Player::sendPong()
 {
     this->msg.clearData();
-    std::memcpy(this->msg.getBody(), "TEST123", 7);
-    this->msg.setBodyLength(8);
     this->msg.setSendMt(net::common::messageType::Pong);
     this->msg.encodeHeader();
-    BOOST_LOG_TRIVIAL(trace) << this->msg.getBodyLength();
-    BOOST_LOG_TRIVIAL(trace) << this->msg.getData();
     this->sendMessage(msg);
+    BOOST_LOG_TRIVIAL(debug) << "Sent pong (" << this->pID << ')';
 }
 
 void
 player::Player::listGames()
 {
-    std::vector<server::GameInfo> gi = this->gamesServer.getAllGamesInfo();
+    std::vector<server::GameInfo> gi = this->gamesServer->getAllGamesInfo();
     BOOST_LOG_TRIVIAL(trace) << "Number of games: " << gi.size();
+}
+
+void
+player::Player::registerUser()
+{
+    std::basic_stringstream<char> ss(this->msg.getBody());
+    std::string nick, pass;
+    ss >> nick >> pass;
+    if (ss.fail())
+    {
+        BOOST_LOG_TRIVIAL(warning) << "Received invalid registerUser request ("
+                                   << this->pID << ')';
+        return;
+    }
+
+    if (this->db->userExist(nick))
+        BOOST_LOG_TRIVIAL(debug) << "User already exists!";
+    else
+        BOOST_LOG_TRIVIAL(debug) << "Nickname: " << nick << " Password: " << pass;
 }
 
 game::player::Player::~Player()

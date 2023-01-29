@@ -3,6 +3,9 @@
  *
  * @section Intro
  * Poker game
+ *
+ * @section Building
+ * TODO
  */
 
 #include <boost/log/trivial.hpp>
@@ -45,7 +48,6 @@ main(int argc, char **argv)
         std::cerr << "Failed to open configuration file" << std::endl;
         return EXIT_FAILURE;
     }
-    //else ?
 
     server::config::ConfigOptions options = conf.parse();
 
@@ -55,13 +57,14 @@ main(int argc, char **argv)
     try
     {
         server::Server s(options.port, options.address,
-                         options.maxConcurrentGames, options.maxPlayersPerGame);
+                         options.maxConcurrentGames, options.maxPlayersPerGame,
+                         options.userDatabase);
         BOOST_LOG_TRIVIAL(info) << "Attempting to start server";
         s.serve();
     }
     catch (const std::exception& err)
     {
-        BOOST_LOG_TRIVIAL(fatal) << err.what();
+        BOOST_LOG_TRIVIAL(fatal) << "What: " << err.what();
     }
 
     return EXIT_SUCCESS;

@@ -34,6 +34,7 @@ namespace server
     };
 
     class Games
+            : public std::enable_shared_from_this<Games>
     {
     private:
         int maxGames;

@@ -23,6 +23,7 @@ namespace asio = boost::asio;
 namespace game
 {
     class Game
+            : public std::enable_shared_from_this<Game>
    {
     private:
         gameID ID;

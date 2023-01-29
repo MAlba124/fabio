@@ -16,8 +16,17 @@ namespace game::player
     class Player;
 }
 
+namespace server
+{
+    class Games;
+    struct GameInfo;
+    class Server;
+}
+
 #include "../../net/common/include/message.hpp"
-#include "./games.hpp"
+#include "./database.hpp"
+//#include "./server.hpp"
+//#include "./games.hpp"
 
 namespace asio = boost::asio;
 
@@ -35,10 +44,11 @@ namespace game::player {
         */
        playerID pID;
 
-        /**
+       /**
          * @brief TODO
          */
-        server::Games& gamesServer;
+       //server::Games& gamesServer;
+       std::shared_ptr<server::Games> gamesServer;
 
        /**
         * @brief Name of the player
@@ -60,6 +70,8 @@ namespace game::player {
          */
         bool isInGame;
 
+        std::shared_ptr<server::db::DB> db;
+
         /**
          * @brief Message object
          */
@@ -77,8 +89,12 @@ namespace game::player {
          * @param bal The balance of the player
          * @param sock The socket to do I/O on
          */
-        explicit Player(playerID pid, server::Games& games, std::string  n,
-                        int bal, asio::ip::tcp::socket sock);
+        explicit Player(player::playerID pid,
+                        std::shared_ptr<server::Games> games,
+                        std::string n,
+                        int bal,
+                        asio::ip::tcp::socket sock,
+                        std::shared_ptr<server::db::DB> db);
 
         /**
          * @brief Deconstructor
@@ -109,6 +125,8 @@ namespace game::player {
          * @brief
          */
          void listGames();
+
+         void registerUser();
 
         /**
          * @brief Send a message

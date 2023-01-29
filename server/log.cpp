@@ -37,7 +37,8 @@ servLog::init(const std::string& logFile)
 
     /* Output to stdout too */
     logging::add_console_log(std::cout, boost::log::keywords::format =
-            "[ \033[33m%TimeStamp%\033[0m ] [ \033[36m%Severity%\033[0m ] :: %Message%");
+            "[ \033[33m%TimeStamp%\033[0m ] "
+            "[ \033[36m%Severity%\033[0m ] :: %Message%");
 
     logging::add_common_attributes();
 }

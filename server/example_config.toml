@@ -5,6 +5,9 @@ port = 1233
 [Logging]
 output = "server_log.txt"
 
+[Database]
+users = "users.db"
+
 [Game]
 maxConcurrentGames = 1
 maxPlayersPerGame = 6

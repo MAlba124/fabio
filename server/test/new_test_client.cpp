@@ -28,13 +28,7 @@ main(void)
 
         client.sendPing();
 
-        //line = "TEASDASD";
-        //msg.setBodyLength(line.size());
-        ////msg.clearData();
-        //std::memcpy(msg.getBody(), line.data(), msg.getBodyLength());
-        //msg.setSendMt(net::common::messageType::ListGames);
-        //msg.encodeHeader();
-        //client.writeMsg(msg);
+        client.userRegister("TestUser", "StrongPasswrod");
 
         if (ioContextThread.joinable())
             ioContextThread.join();

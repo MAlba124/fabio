@@ -4,11 +4,12 @@
 #include <utility>
 
 #include "./include/server.hpp"
+#include "./include/database.hpp"
 
 namespace asio = boost::asio;
 
 server::Server::Server(const int portn, const std::string& addr, int maxg,
-                       int maxp)
+                       int maxp, std::string userDB)
     : ac(
         this->ioc,
         asio::ip::tcp::endpoint(
@@ -16,7 +17,8 @@ server::Server::Server(const int portn, const std::string& addr, int maxg,
             portn
         )
     ),
-      games(maxg, maxp)
+      _games(std::make_shared<server::Games>(maxg, maxp)),
+      database(std::make_shared<server::db::DB>(userDB))
 {
     /* "Prime" the ioc object with work */
     this->doAccept();
@@ -37,8 +39,12 @@ server::Server::doAccept()
 
                 std::make_shared<game::player::Player>
                 (
-                        this->getPIDCount(), games, "Default", 1000,
-                        std::move(socket)
+                        this->getPIDCount(),
+                        this->_games,
+                        "Default",
+                        1000,
+                        std::move(socket),
+                        this->database
                 )->start();
             }
             else
@@ -59,6 +65,7 @@ server::Server::doAccept()
 void
 server::Server::serve()
 {
+    BOOST_LOG_TRIVIAL(trace) << "Running io_context";
     this->ioc.run();
 }
 

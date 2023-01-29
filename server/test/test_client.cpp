@@ -138,8 +138,9 @@ int main(int argc, char* argv[])
         net::common::Message msg;
 
         std::string line = "Ping!";
-        msg.setBodyLength(line.size());
-        std::memcpy(msg.getBody(), line.data(), msg.getBodyLength());
+        //msg.setBodyLength(line.size());
+        //std::memcpy(msg.getBody(), line.data(), msg.getBodyLength());
+        //msg.getBody() = line.data();
         msg.setSendMt(net::common::messageType::Ping);
         msg.encodeHeader();
         c.write(msg);

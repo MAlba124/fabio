@@ -15,7 +15,7 @@ namespace net::common
 #define HEADER_LSIZE                                  4
 #define HEADER_MSIZE                                  4
 #define HEADER_LENGTH     (HEADER_MSIZE + HEADER_LSIZE)
-#define BODY_MAX_LENGTH                             512
+#define BODY_MAX_LENGTH                            1024
 
 namespace net::common
 {
@@ -29,7 +29,9 @@ namespace net::common
         Ping               = 1,
         Pong               = 2,
         JoinGame           = 3,
-        ListGames          = 4
+        ListGames          = 4,
+        UserRegister       = 5,
+        UserLogin          = 6,
     };
 
     /**
@@ -84,6 +86,7 @@ namespace net::common
          */
         void encodeHeader()
         {
+            this->bodyLength = strlen(this->getBody());
             char header[headerLength + 1] = "";
             std::sprintf(header, "%4d%4d", static_cast<int>(this->sendMt),
                          static_cast<int>(this->bodyLength));
@@ -95,10 +98,10 @@ namespace net::common
          * @param b The length in bytes
          */
          // TODO: Make this not neceseary
-        void setBodyLength(std::size_t b)
-        {
-            this->bodyLength = b;
-        }
+        //void setBodyLength(std::size_t b)
+        //{
+        //    this->bodyLength = b;
+        //}
 
         /**
          * @return The size of the body in bytes
@@ -135,9 +138,24 @@ namespace net::common
         /**
          * @return A pointer to the message body
          */
-        char *getBody()
+        char
+        *getBody()
         {
             return this->data + headerLength;
+        }
+
+        /**
+         *
+         * @param body
+         */
+        void
+        setBody(std::string body)
+        {
+            if (body.size() > BODY_MAX_LENGTH)
+                return;
+
+            std::copy(body.begin(), body.end(), &(this->data[HEADER_LENGTH]));
+            this->data[HEADER_LENGTH + body.size()] = '\0';
         }
 
         /**

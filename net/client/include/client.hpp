@@ -4,6 +4,7 @@
 #include <boost/asio.hpp>
 #include <deque>
 #include <thread>
+#include <string>
 
 #include "../../common/include/message.hpp"
 #include "../../common/include/tsDeque.hpp"
@@ -43,20 +44,20 @@ namespace net::client
         void connect(std::string addr, int port);
 
         /**
-         * Destructor
+         * @brief Destructor
          */
         ~Client();
 
         /**
-         * Close the connection to the server
+         * @brief Close the connection to the server
          */
         void close();
 
         /**
-         * Send a message to the server
+         * @brief Send a message to the server
          * @param sMsg The message object to send
          */
-        void writeMsg(net::common::Message& sMsg);
+        void sendMessage(net::common::Message& sMsg);
 
         /**
          * @brief Send a ping message to server
@@ -77,6 +78,10 @@ namespace net::client
          * @return True if the client is connected to a server
          */
         bool isConnected();
+
+        void userRegister(std::string nick, std::string pass);
+
+        void sendPong();
     private:
         // TODO: write doc
         void readHeader();

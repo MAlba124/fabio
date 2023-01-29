@@ -21,6 +21,8 @@ namespace server::config {
 
         std::string logFile;
 
+        std::string userDatabase;
+
         int maxConcurrentGames;
         int maxPlayersPerGame;
     };

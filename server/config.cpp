@@ -1,8 +1,6 @@
 #include <string>
-#include <stdexcept>
 
 #include "./include/config.hpp"
-#include "./include/toml.hpp"
 
 /* Default values that will be used if they were not provided in
  * a configuration file */
@@ -11,8 +9,11 @@ static const int DEFAULT_PORT          = 3000;
 static const char* DEFAULT_ADDRESS     = "127.0.0.1";
 static const char* DEFAULT_SERVER_NAME = "Poker";
 
-/* [Logging */
+/* [Logging] */
 static const char* DEFAULT_LOGFILE = "poker_server_log.txt";
+
+/* [Database] */
+static const char* DEFAULT_USER_DB = "users.db";
 
 /* [Game] */
 static const int DEFAULT_MC_GAMES      = 10;
@@ -44,8 +45,11 @@ config::SConfig::parse() {
         .port = this->tbl["Server"]["port"].value_or(DEFAULT_PORT),
         .address = this->tbl["Server"]["address"].value_or(DEFAULT_ADDRESS),
 
-        // ----------------------↓
+        // ------------------↓
         .logFile = this->tbl["Logging"]["output"].value_or(DEFAULT_LOGFILE),
+
+        // -----------------------↓
+        .userDatabase = this->tbl["Database"]["user"].value_or(DEFAULT_USER_DB),
 
         // -----------------------------↓
         .maxConcurrentGames = this->tbl["Game"]["maxConcurrentGames"]

@@ -3,15 +3,19 @@
 
 #include <boost/asio.hpp>
 #include <string>
+#include <memory>
 
 /* Forward declarations to eliminate "'x' was has not been declared" error */
 namespace server
 {
+    class Games;
     class Server;
+    class DB;
 }
 
 #include "./games.hpp"
 #include "./player.hpp"
+#include "./database.hpp"
 
 namespace asio = boost::asio;
 
@@ -20,8 +24,9 @@ namespace asio = boost::asio;
  */
 namespace server
 {
-    class Server {
-    private:
+    class Server
+    {
+    protected:
         /**
          * @brief io_context object to do the actual networking I/O
          */
@@ -35,14 +40,17 @@ namespace server
         /**
          * @brief Containing all the running/created games
          */
-        //std::vector<game::Game> games;
-        Games games;
+        std::shared_ptr<Games> _games;
+
+        /**
+         * @brief TODO
+         */
+        std::shared_ptr<db::DB> database;
 
         /**
          * @brief The maximum amount of games that the server can
-         * run concurrently
+         *        run concurrently
          */
-        //int maxGames;
         game::player::playerID pIDCount = 0;
     public:
         /**
@@ -50,9 +58,10 @@ namespace server
          * @param portn Port to listen for connections on
          * @param addr Address to listen to
          * @param maxg Maximum amount of concurrent games running at any
-         * given time
+         *             given time
          */
-        explicit Server(int portn, const std::string& addr, int maxg, int maxp);
+        explicit Server(int portn, const std::string& addr, int maxg, int maxp,
+                        std::string userDB);
 
         /**
          * @brief Start listening and accepting clients
@@ -65,7 +74,8 @@ namespace server
          * @brief Deconstructor
          */
         ~Server();
-    private:
+
+    protected:
         /**
          * @brief Accept function called after handling accepts
          */

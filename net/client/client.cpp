@@ -45,7 +45,7 @@ client::Client::close()
 }
 
 void
-client::Client::writeMsg(net::common::Message& sMsg)
+client::Client::sendMessage(net::common::Message &sMsg)
 {
     asio::post(this->ioContext,
        [this, sMsg]()
@@ -78,10 +78,13 @@ client::Client::readHeader()
                     std::memcpy(m.getBody(), " ", 1);
                     m.setSendMt(net::common::messageType::Pong);
                     m.encodeHeader();
-                    this->writeMsg(m);
+                    this->sendMessage(m);
                 }
 
-                this->readBody();
+                if (this->msg.getReceivedBytes() > 0)
+                    this->readBody();
+                else
+                    this->readHeader();
             }
             else
             {
@@ -156,10 +159,11 @@ client::Client::write()
 void
 client::Client::sendPing()
 {
-    this->msg.setBodyLength(0);
+    this->msg.clearData();
     this->msg.setSendMt(net::common::messageType::Ping);
     this->msg.encodeHeader();
-    this->writeMsg(msg);
+
+    this->sendMessage(msg);
 }
 
 unsigned long int
@@ -180,6 +184,27 @@ bool
 client::Client::isConnected()
 {
     return this->socket.is_open() && this->connected;
+}
+
+void
+client::Client::userRegister(std::string nick, std::string pass)
+{
+    this->msg.clearData();
+    this->msg.setSendMt(net::common::messageType::UserRegister);
+    this->msg.setBody(nick + ' ' + pass);
+    this->msg.encodeHeader();
+
+    this->sendMessage(this->msg);
+}
+
+void
+client::Client::sendPong()
+{
+    this->msg.clearData();
+    this->msg.setSendMt(net::common::messageType::Pong);
+    this->msg.encodeHeader();
+
+    this->sendMessage(msg);
 }
 
 client::Client::~Client()

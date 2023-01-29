@@ -30,8 +30,6 @@ server::Games::playerJoinGame(const std::shared_ptr<game::player::Player> /*p*/,
             (unsigned long int)this->gs[index]->getMaxPlayers())
         return gamesError::FULL;
 
-
-
     return gamesError::SUCCESS;
 }
 

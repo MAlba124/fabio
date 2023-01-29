@@ -13,6 +13,8 @@ project(pokerServer)
 set(Boost_USE_STATIC_LIBS ON)
 find_package(Boost REQUIRED COMPONENTS log_setup log)
 
+find_package(SQLite3 REQUIRED)
+
 add_executable(Server main.cpp
         server.cpp
         config.cpp
@@ -20,6 +22,7 @@ add_executable(Server main.cpp
         player.cpp
         log.cpp
         games.cpp
-)
+        database.cpp)
 
 target_link_libraries(Server ${Boost_LIBRARIES})
+target_link_libraries(Server ${SQLite3_LIBRARIES})
