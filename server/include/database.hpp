@@ -6,6 +6,8 @@
 #include <boost/log/trivial.hpp>
 #include <memory>
 #include <string>
+#include <mutex>
+
 #include <sqlite3.h>
 
 namespace server::db
@@ -17,9 +19,11 @@ namespace server::db
         sqlite3 *_db{};
         sqlite3_stmt *stmtUserExists{};
         sqlite3_stmt *stmtAddUser{};
+        std::mutex m;
     public:
         explicit DB(std::string usersDB);
         bool userExist(std::string nick);
+        bool userAdd(std::string nick, std::string pass);
         ~DB();
     };
 }

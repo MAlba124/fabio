@@ -28,7 +28,7 @@ main(void)
 
         client.sendPing();
 
-        client.userRegister("TestUser", "StrongPasswrod");
+        client.userRegister("SomeUsername", "asjhdkajshdjahsjhd");
 
         if (ioContextThread.joinable())
             ioContextThread.join();

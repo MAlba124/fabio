@@ -183,9 +183,20 @@ player::Player::registerUser()
     }
 
     if (this->db->userExist(nick))
+    {
         BOOST_LOG_TRIVIAL(debug) << "User already exists!";
-    else
-        BOOST_LOG_TRIVIAL(debug) << "Nickname: " << nick << " Password: " << pass;
+        return;
+    }
+
+    if (this->db->userAdd(nick, pass)) {
+        BOOST_LOG_TRIVIAL(info) << "Registered user: Nick: " << nick
+                                << " Pass: " << pass
+                                << " (" << this->pID << ')';
+        return;
+    }
+
+    BOOST_LOG_TRIVIAL(warning) << "Failed to register user ("
+                               << this->pID << ')';
 }
 
 game::player::Player::~Player()

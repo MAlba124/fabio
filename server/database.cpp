@@ -1,4 +1,6 @@
 #include <string>
+#include <mutex>
+
 #include <sqlite3.h>
 
 #include "./include/database.hpp"
@@ -68,6 +70,8 @@ server::db::DB::DB(std::string userDB)
 bool
 server::db::DB::userExist(std::string nick)
 {
+    std::lock_guard<std::mutex> lock(this->m);
+
     int rc;
 
     rc = sqlite3_bind_text(this->stmtUserExists, 1, nick.c_str(), -1,
@@ -90,6 +94,32 @@ server::db::DB::userExist(std::string nick)
     {
         return false;
     }
+}
+
+bool
+server::db::DB::userAdd(std::string nick, std::string pass)
+{
+    std::lock_guard<std::mutex> lock(this->m);
+
+    int rc;
+
+    rc = sqlite3_bind_text(this->stmtAddUser, 1, nick.c_str(), -1,
+                           SQLITE_STATIC);
+    if (rc != SQLITE_OK)
+        return false;
+
+    rc = sqlite3_bind_text(this->stmtAddUser, 2, pass.c_str(), -1,
+                           SQLITE_STATIC);
+    if (rc != SQLITE_OK)
+        return false;
+
+    rc = sqlite3_step(this->stmtAddUser);
+    if (rc != SQLITE_DONE)
+        return false;
+
+    sqlite3_reset(this->stmtAddUser);
+
+    return true;
 }
 
 server::db::DB::~DB()
