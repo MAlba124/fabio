@@ -187,10 +187,21 @@ client::Client::isConnected()
 }
 
 void
-client::Client::userRegister(std::string nick, std::string pass)
+client::Client::uregister(std::string nick, std::string pass)
 {
     this->msg.clearData();
     this->msg.setSendMt(net::common::messageType::UserRegister);
+    this->msg.setBody(nick + ' ' + pass);
+    this->msg.encodeHeader();
+
+    this->sendMessage(this->msg);
+}
+
+void
+client::Client::login(std::string nick, std::string pass)
+{
+    this->msg.clearData();
+    this->msg.setSendMt(net::common::messageType::UserLogin);
     this->msg.setBody(nick + ' ' + pass);
     this->msg.encodeHeader();
 

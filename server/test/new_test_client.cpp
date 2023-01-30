@@ -28,7 +28,9 @@ main(void)
 
         client.sendPing();
 
-        client.userRegister("SomeUsername", "asjhdkajshdjahsjhd");
+        //client.uregister("SomeUsername", "asjhdkajshdjahsjhd");
+
+        client.login("SomeUsername", "asjhdkajshdjahsjhd");
 
         if (ioContextThread.joinable())
             ioContextThread.join();

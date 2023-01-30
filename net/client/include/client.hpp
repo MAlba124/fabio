@@ -79,7 +79,9 @@ namespace net::client
          */
         bool isConnected();
 
-        void userRegister(std::string nick, std::string pass);
+        void uregister(std::string nick, std::string pass);
+
+        void login(std::string nick, std::string pass);
 
         void sendPong();
     private:

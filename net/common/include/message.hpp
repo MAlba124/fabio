@@ -23,15 +23,19 @@ namespace net::common
      * @brief Message type enum
      */
     enum class messageType:char {
-        InvalidMessage     = -2,
-        InvalidMessageType = -1,
-        None               = 0,
-        Ping               = 1,
-        Pong               = 2,
-        JoinGame           = 3,
-        ListGames          = 4,
-        UserRegister       = 5,
-        UserLogin          = 6,
+        InvalidMessage       =  -2,
+        InvalidMessageType   =  -1,
+        None                 =   0,
+        Ping                 =   1,
+        Pong                 =   2,
+        JoinGame             =   3,
+        ListGames            =   4,
+        UserRegister         =   5,
+        UserRegisterFailed   =   6,
+        UserRegisterSuccess  =   7,
+        UserLogin            =   8,
+        UserLoginFailed      =   9,
+        UserLoginSuccess     =  10
     };
 
     /**

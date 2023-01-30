@@ -65,10 +65,24 @@ server::db::DB::DB(std::string userDB)
     {
         BOOST_LOG_TRIVIAL(info) << "Generated addUser statement";
     }
+
+    /* */
+    rc = sqlite3_prepare_v2(this->_db,
+                            "SELECT password FROM users WHERE nickname = ?;",
+                            -1, &this->stmtCheck, nullptr);
+    if (rc != SQLITE_OK)
+    {
+        BOOST_LOG_TRIVIAL(error) << "Failed to generate check statement";
+        return;
+    }
+    else
+    {
+        BOOST_LOG_TRIVIAL(info) << "Generated check statement";
+    }
 }
 
 bool
-server::db::DB::userExist(std::string nick)
+server::db::DB::userExist(const std::string& nick)
 {
     std::lock_guard<std::mutex> lock(this->m);
 
@@ -97,7 +111,7 @@ server::db::DB::userExist(std::string nick)
 }
 
 bool
-server::db::DB::userAdd(std::string nick, std::string pass)
+server::db::DB::userAdd(const std::string& nick, const std::string& pass)
 {
     std::lock_guard<std::mutex> lock(this->m);
 
@@ -120,6 +134,35 @@ server::db::DB::userAdd(std::string nick, std::string pass)
     sqlite3_reset(this->stmtAddUser);
 
     return true;
+}
+
+bool
+server::db::DB::userValidate(const std::string& nick, const std::string& pass)
+{
+    std::lock_guard<std::mutex> lock(this->m);
+
+    int rc;
+
+    rc = sqlite3_bind_text(this->stmtCheck, 1, nick.c_str(), -1,
+                           SQLITE_STATIC);
+    if (rc != SQLITE_OK)
+        return true;
+
+    rc = sqlite3_step(this->stmtCheck);
+    if (rc == SQLITE_ROW)
+    {
+        const char *password = reinterpret_cast<const char*>
+                (sqlite3_column_text(this->stmtCheck, 0));
+
+        if (pass == password)
+        {
+            sqlite3_reset(this->stmtCheck);
+            return true;
+        }
+    }
+
+    sqlite3_reset(this->stmtCheck);
+    return false;
 }
 
 server::db::DB::~DB()

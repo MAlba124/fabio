@@ -56,8 +56,30 @@ player::Player::readHeader()
             }
             else
             {
-                if (this->msg.getRecvMt() == net::common::messageType::Ping)
-                    this->sendPong();
+                switch (this->msg.getRecvMt()) {
+                    case net::common::messageType::None:
+                        break;
+                    case net::common::messageType::Ping:
+                        this->sendPong();
+                        break;
+                    case net::common::messageType::ListGames:
+                        this->listGames();
+                        break;
+                    //case net::common::messageType::InvalidMessage:
+                    //    break;
+                    //case net::common::messageType::InvalidMessageType:
+                        break;
+                    case net::common::messageType::Pong:
+                        break;
+                    //case net::common::messageType::JoinGame:
+                    //    break;
+                    //case net::common::messageType::UserLogin:
+                    //    break;
+                    default:
+                        this->sendInvalidMessageType();
+                        break;
+                }
+
                 this->readHeader();
             }
         }
@@ -85,14 +107,11 @@ player::Player::readBody()
         if (!ec)
         {
             switch (msg.getRecvMt()) {
-                case net::common::messageType::Ping:
-                    this->sendPong();
-                    break;
-                case net::common::messageType::ListGames:
-                    this->listGames();
-                    break;
                 case net::common::messageType::UserRegister:
                     this->registerUser();
+                    break;
+                case net::common::messageType::UserLogin:
+                    this->login();
                     break;
                 case net::common::messageType::None:
                 default:
@@ -103,7 +122,7 @@ player::Player::readBody()
         }
         else
         {
-             std::cerr << ec.what() << std::endl;
+            BOOST_LOG_TRIVIAL(warning) << ec.what() << " (" << this->pID << ')';
         }
     });
 }
@@ -153,13 +172,60 @@ player::Player::write()
 }
 
 void
-player::Player::sendPong()
+player::Player::sendBasic(net::common::messageType type)
 {
     this->msg.clearData();
-    this->msg.setSendMt(net::common::messageType::Pong);
+    this->msg.setSendMt(type);
     this->msg.encodeHeader();
     this->sendMessage(msg);
-    BOOST_LOG_TRIVIAL(debug) << "Sent pong (" << this->pID << ')';
+}
+
+void
+player::Player::sendPong()
+{
+    this->sendBasic(net::common::messageType::Pong);
+    BOOST_LOG_TRIVIAL(debug) << "Sent Pong (" << this->pID << ')';
+}
+
+void player::Player::sendInvalidMessage()
+{
+    this->sendBasic(net::common::messageType::InvalidMessage);
+    BOOST_LOG_TRIVIAL(debug) << "Sent InvalidMessage (" << this->pID << ')';
+}
+
+void player::Player::sendInvalidMessageType()
+{
+    this->sendBasic(net::common::messageType::InvalidMessageType);
+    BOOST_LOG_TRIVIAL(debug) << "Sent InvalidMessageType (" << this->pID << ')';
+}
+
+void
+player::Player::sendRegistrationFailed()
+{
+    this->sendBasic(net::common::messageType::UserRegisterFailed);
+    BOOST_LOG_TRIVIAL(debug) << "Sent UserRegisterFailed (" << this->pID << ')';
+}
+
+void
+player::Player::sendRegistrationSuccess()
+{
+    this->sendBasic(net::common::messageType::UserRegisterSuccess);
+    BOOST_LOG_TRIVIAL(debug) << "Sent UserRegisterSuccess ("
+                             << this->pID << ')';
+}
+
+void
+player::Player::sendLoginFailed()
+{
+    this->sendBasic(net::common::messageType::UserLoginFailed);
+    BOOST_LOG_TRIVIAL(debug) << "Sent UserLoginFailed (" << this->pID << ')';
+}
+
+void
+player::Player::sendLoginSuccess()
+{
+    this->sendBasic(net::common::messageType::UserLoginSuccess);
+    BOOST_LOG_TRIVIAL(debug) << "Sent UserLoginSuccess (" << this->pID << ')';
 }
 
 void
@@ -177,27 +243,60 @@ player::Player::registerUser()
     ss >> nick >> pass;
     if (ss.fail())
     {
-        BOOST_LOG_TRIVIAL(warning) << "Received invalid registerUser request ("
+        BOOST_LOG_TRIVIAL(warning) << "Received invalid registerUser message ("
                                    << this->pID << ')';
+        this->sendInvalidMessage();
         return;
     }
 
     if (this->db->userExist(nick))
     {
         BOOST_LOG_TRIVIAL(debug) << "User already exists!";
+        this->sendRegistrationFailed();
         return;
     }
 
     if (this->db->userAdd(nick, pass)) {
-        BOOST_LOG_TRIVIAL(info) << "Registered user: Nick: " << nick
+        BOOST_LOG_TRIVIAL(debug) << "Registered user: Nick: " << nick
                                 << " Pass: " << pass
                                 << " (" << this->pID << ')';
+        this->sendRegistrationSuccess();
         return;
     }
 
     BOOST_LOG_TRIVIAL(warning) << "Failed to register user ("
                                << this->pID << ')';
+    this->sendRegistrationFailed();
 }
 
 game::player::Player::~Player()
     = default;
+
+void
+player::Player::login()
+{
+    std::basic_stringstream<char> ss(this->msg.getBody());
+    std::string nick, pass;
+    ss >> nick >> pass;
+    if (ss.fail())
+    {
+        BOOST_LOG_TRIVIAL(warning) << "Received invalid login message ("
+                                   << this->pID << ')';
+        this->sendInvalidMessage();
+        return;
+    }
+
+    if (this->db->userValidate(nick, pass))
+    {
+        this->nickname = nick;
+        BOOST_LOG_TRIVIAL(info) << "User login successfull: Nick: " << nick
+                                << " (" << this->pID << ')';
+        this->sendLoginSuccess();
+        this->isLoggedIn = true;
+        return;
+    }
+
+    BOOST_LOG_TRIVIAL(info) << "User login failed: Nick" <<  nick
+                            << " (" << this->pID << ')';
+    this->sendLoginFailed();
+}

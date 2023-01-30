@@ -19,11 +19,13 @@ namespace server::db
         sqlite3 *_db{};
         sqlite3_stmt *stmtUserExists{};
         sqlite3_stmt *stmtAddUser{};
+        sqlite3_stmt *stmtCheck{};
         std::mutex m;
     public:
         explicit DB(std::string usersDB);
-        bool userExist(std::string nick);
-        bool userAdd(std::string nick, std::string pass);
+        bool userExist(const std::string& nick);
+        bool userAdd(const std::string& nick, const std::string& pass);
+        bool userValidate(const std::string& nick, const std::string& pass);
         ~DB();
     };
 }

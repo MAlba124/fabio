@@ -81,6 +81,8 @@ namespace game::player {
          * @brief Que for outgoing messages
          */
         std::deque<net::common::Message> writeMsgQue;
+
+        bool isLoggedIn = false;
     public:
         /**
          * @brief Constructor
@@ -116,10 +118,25 @@ namespace game::player {
          */
         void readBody();
 
+        void sendBasic(net::common::messageType type);
+
         /**
          * @brief Send a pong response
          */
         void sendPong();
+
+        void sendInvalidMessage();
+
+        void sendInvalidMessageType();
+
+        void sendRegistrationFailed();
+
+        void sendRegistrationSuccess();
+
+        void sendLoginFailed();
+
+        void sendLoginSuccess();
+
 
         /**
          * @brief
@@ -127,6 +144,8 @@ namespace game::player {
          void listGames();
 
          void registerUser();
+
+         void login();
 
         /**
          * @brief Send a message
