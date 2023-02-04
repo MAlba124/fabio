@@ -5,8 +5,48 @@
 #include <boost/log/utility/setup/file.hpp>
 #include <boost/log/utility/setup/common_attributes.hpp>
 #include <boost/log/utility/setup/console.hpp>
+#include <boost/log/sinks.hpp>
+#include <boost/log/sinks/sync_frontend.hpp>
 
 #include "./include/log.hpp"
+
+static void consoleFormatter(
+        boost::log::record_view const& rec,
+        boost::log::formatting_ostream& strm)
+{
+    auto severity = rec[boost::log::trivial::severity];
+    if (severity)
+    {
+        strm << "[ ";
+        switch (severity.get())
+        {
+            case boost::log::trivial::severity_level::trace:
+                strm << "\033[36mTRACE";
+                break;
+            case boost::log::trivial::severity_level::debug:
+                strm << "\033[36mDEBUG";
+                break;
+            case boost::log::trivial::severity_level::info:
+                strm << "\033[34mINFO";
+                break;
+            case boost::log::trivial::severity_level::warning:
+                strm << "\033[33mWARNING";
+                break;
+            case boost::log::trivial::severity_level::error:
+                strm << "\033[31mERROR";
+                break;
+            case boost::log::trivial::severity_level::fatal:
+                strm << "\033[43m\033[31mFATAL";
+                break;
+            default:
+                break;
+        }
+
+        strm << "\033[0m ] :: ";
+    }
+
+    strm << rec[boost::log::expressions::smessage];
+}
 
 void
 servLog::init(const std::string& logFile)
@@ -35,10 +75,12 @@ servLog::init(const std::string& logFile)
             logging::trivial::severity >= logging::trivial::trace
     );
 
-    /* Output to stdout too */
-    logging::add_console_log(std::cout, boost::log::keywords::format =
-            "[ \033[33m%TimeStamp%\033[0m ] "
-            "[ \033[36m%Severity%\033[0m ] :: %Message%");
+    boost::shared_ptr<
+            logging::sinks::synchronous_sink<
+            logging::sinks::basic_text_ostream_backend<char>
+            >> consoleSink = logging::add_console_log();
+
+    consoleSink->set_formatter(&consoleFormatter);
 
     logging::add_common_attributes();
 }

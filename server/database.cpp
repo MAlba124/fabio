@@ -24,7 +24,9 @@ server::db::DB::DB(std::string userDB)
     char *errMsg = nullptr;
     rc = sqlite3_exec(this->_db,
                       "CREATE TABLE IF NOT EXISTS users "
-                      "(nickname TEXT PRIMARY KEY, password TEXT NOT NULL);",
+                      "(nickname TEXT PRIMARY KEY, "
+                      "password TEXT NOT NULL, "
+                      "balance INTEGER);",
                       nullptr, nullptr, &errMsg);
     if (rc != SQLITE_OK)
     {
@@ -54,7 +56,7 @@ server::db::DB::DB(std::string userDB)
 
     /* */
     rc = sqlite3_prepare_v2(this->_db,
-                            "INSERT INTO users VALUES (?, ?);",
+                            "INSERT INTO users VALUES (?, ?, ?);",
                             -1, &this->stmtAddUser, nullptr);
     if (rc != SQLITE_OK)
     {
@@ -79,6 +81,20 @@ server::db::DB::DB(std::string userDB)
     {
         BOOST_LOG_TRIVIAL(info) << "Generated check statement";
     }
+
+    /* */
+    rc = sqlite3_prepare_v2(this->_db,
+                            "SELECT balance FROM users WHERE nickname = ?;",
+                            -1, &this->stmtGetUser, nullptr);
+    if (rc != SQLITE_OK)
+    {
+        BOOST_LOG_TRIVIAL(error) << "Failed to generate getUser statement";
+        return;
+    }
+    else
+    {
+        BOOST_LOG_TRIVIAL(info) << "Generated getUser statement";
+    }
 }
 
 bool
@@ -92,7 +108,8 @@ server::db::DB::userExist(const std::string& nick)
                            SQLITE_STATIC);
     if (rc != SQLITE_OK)
     {
-        BOOST_LOG_TRIVIAL(warning) << "Failed to check if user exists";
+        BOOST_LOG_TRIVIAL(warning) << "Failed to check if user exists: "
+                                   << sqlite3_errmsg(this->_db);
         return false;
     }
 
@@ -100,9 +117,9 @@ server::db::DB::userExist(const std::string& nick)
 
     if (rc == SQLITE_ROW)
     {
-        int count = sqlite3_column_int(this->stmtUserExists, 0);
+        //int count = sqlite3_column_int(this->stmtUserExists, 0); // ?? (TODO)
         sqlite3_reset(this->stmtUserExists);
-        return (count > 0);
+        return true;
     }
     else
     {
@@ -110,43 +127,67 @@ server::db::DB::userExist(const std::string& nick)
     }
 }
 
-bool
-server::db::DB::userAdd(const std::string& nick, const std::string& pass)
+server::db::User
+server::db::DB::userAdd(const std::string& nick, const std::string& pass,
+                        int bal)
 {
     std::lock_guard<std::mutex> lock(this->m);
 
     int rc;
+    server::db::User u = { .err = true, .nick = nick, .balance = bal };
 
     rc = sqlite3_bind_text(this->stmtAddUser, 1, nick.c_str(), -1,
                            SQLITE_STATIC);
     if (rc != SQLITE_OK)
-        return false;
+    {
+        BOOST_LOG_TRIVIAL(debug) << "Failed to bind_text(1)";
+        return u;
+    }
 
     rc = sqlite3_bind_text(this->stmtAddUser, 2, pass.c_str(), -1,
                            SQLITE_STATIC);
     if (rc != SQLITE_OK)
-        return false;
+    {
+        BOOST_LOG_TRIVIAL(debug) << "Failed to bind_text(2)";
+        return u;
+    }
+
+    rc = sqlite3_bind_int(this->stmtAddUser, 3, bal);
+    if (rc != SQLITE_OK)
+    {
+        BOOST_LOG_TRIVIAL(debug) << "Failed to bind_int";
+        return u;
+    }
 
     rc = sqlite3_step(this->stmtAddUser);
     if (rc != SQLITE_DONE)
-        return false;
+    {
+        BOOST_LOG_TRIVIAL(debug) << "Failed to step";
+        return u;
+    }
 
     sqlite3_reset(this->stmtAddUser);
 
-    return true;
+    u.err = false;
+
+    return u;
 }
 
-bool
+server::db::User
 server::db::DB::userValidate(const std::string& nick, const std::string& pass)
 {
     std::lock_guard<std::mutex> lock(this->m);
 
     int rc;
+    server::db::User u = { .err = true, .nick = nick, .balance = -1 };
 
     rc = sqlite3_bind_text(this->stmtCheck, 1, nick.c_str(), -1,
                            SQLITE_STATIC);
     if (rc != SQLITE_OK)
-        return true;
+    {
+        BOOST_LOG_TRIVIAL(debug) << "Failed to bind_text";
+        return u;
+    }
 
     rc = sqlite3_step(this->stmtCheck);
     if (rc == SQLITE_ROW)
@@ -157,17 +198,41 @@ server::db::DB::userValidate(const std::string& nick, const std::string& pass)
         if (pass == password)
         {
             sqlite3_reset(this->stmtCheck);
-            return true;
+
+            rc = sqlite3_bind_text(this->stmtGetUser, 1, nick.c_str(), -1,
+                                   SQLITE_STATIC);
+            if (rc != SQLITE_OK)
+            {
+                sqlite3_reset(this->stmtGetUser);
+                return u;
+            }
+
+            if (sqlite3_step(this->stmtGetUser) == SQLITE_ROW)
+            {
+                u.balance = sqlite3_column_int(this->stmtGetUser, 0);
+            }
+            else {
+                sqlite3_reset(this->stmtGetUser);
+                return u;
+            }
+
+            sqlite3_reset(this->stmtGetUser);
+            u.err = false;
+
+            return u;
         }
     }
 
     sqlite3_reset(this->stmtCheck);
-    return false;
+
+    return u;
 }
 
 server::db::DB::~DB()
 {
     sqlite3_finalize(this->stmtUserExists);
     sqlite3_finalize(this->stmtAddUser);
+    sqlite3_finalize(this->stmtCheck);
+    sqlite3_finalize(this->stmtGetUser);
     sqlite3_close(this->_db);
 }

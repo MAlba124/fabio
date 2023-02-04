@@ -137,7 +137,6 @@ namespace game::player {
 
         void sendLoginSuccess();
 
-
         /**
          * @brief
          */

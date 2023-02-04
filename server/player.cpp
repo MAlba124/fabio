@@ -240,6 +240,8 @@ player::Player::registerUser()
 {
     std::basic_stringstream<char> ss(this->msg.getBody());
     std::string nick, pass;
+    server::db::User u;
+
     ss >> nick >> pass;
     if (ss.fail())
     {
@@ -256,7 +258,8 @@ player::Player::registerUser()
         return;
     }
 
-    if (this->db->userAdd(nick, pass)) {
+    // TODO: add default balance
+    if (!(u = this->db->userAdd(nick, pass, 1000)).err) {
         BOOST_LOG_TRIVIAL(debug) << "Registered user: Nick: " << nick
                                 << " Pass: " << pass
                                 << " (" << this->pID << ')';
@@ -277,6 +280,8 @@ player::Player::login()
 {
     std::basic_stringstream<char> ss(this->msg.getBody());
     std::string nick, pass;
+    server::db::User u;
+
     ss >> nick >> pass;
     if (ss.fail())
     {
@@ -286,17 +291,19 @@ player::Player::login()
         return;
     }
 
-    if (this->db->userValidate(nick, pass))
+    if (!(u = this->db->userValidate(nick, pass)).err)
     {
-        this->nickname = nick;
+        this->nickname = u.nick;
+        this->balance = u.balance;
         BOOST_LOG_TRIVIAL(info) << "User login successfull: Nick: " << nick
+                                << " Balance: " << u.balance
                                 << " (" << this->pID << ')';
         this->sendLoginSuccess();
         this->isLoggedIn = true;
         return;
     }
 
-    BOOST_LOG_TRIVIAL(info) << "User login failed: Nick" <<  nick
+    BOOST_LOG_TRIVIAL(warning) << "User login failed: Nick: " <<  nick
                             << " (" << this->pID << ')';
     this->sendLoginFailed();
 }
