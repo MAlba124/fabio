@@ -1,4 +1,1 @@
-*.o
-client
-build
-*.ini
+imgui-docking

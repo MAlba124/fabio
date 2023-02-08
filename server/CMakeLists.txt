@@ -8,7 +8,7 @@ add_compile_options(
         -O2
 )
 
-project(pokerServer)
+project(fabioServer)
 
 set(Boost_USE_STATIC_LIBS ON)
 find_package(Boost REQUIRED COMPONENTS log_setup log)
