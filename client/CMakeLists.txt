@@ -20,8 +20,8 @@ add_executable(Client main.cpp
         imgui-docking/imgui_widgets.cpp
         imgui-docking/backends/imgui_impl_sdl2.cpp
         imgui-docking/backends/imgui_impl_sdlrenderer.cpp
-
-        imgui-docking/imgui_demo.cpp # Used for demoing ImGUI
+        ui.cpp
+        game.cpp
 )
 
 target_include_directories(Client PRIVATE imgui-docking)
