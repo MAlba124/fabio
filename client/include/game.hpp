@@ -9,8 +9,6 @@
 
 namespace fabio
 {
-	void drawGrid(SDL_Surface *surface);
-
 	class Game
 	{
 		private:
@@ -18,8 +16,6 @@ namespace fabio
 			SDL_WindowFlags wfs;
 			SDL_Window *win;
 			SDL_Renderer *renderer;
-			SDL_Surface *s;
-			SDL_Surface *gridS;
 			UI ui;
 		public:
 			Game();
