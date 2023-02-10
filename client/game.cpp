@@ -1,6 +1,4 @@
 #include <SDL.h>
-#include "SDL2_gfx/SDL2_gfxPrimitives.h"
-#include <cmath>
 
 #include "./include/game.hpp"
 
@@ -65,7 +63,6 @@ fabio::Game::run()
     ImGui_ImplSDL2_InitForSDLRenderer(this->win, this->renderer);
     ImGui_ImplSDLRenderer_Init(this->renderer);
 
-	int cpx = 100, cpy = 100;
 	bool done = false;
 	while (!done)
 	{
@@ -85,7 +82,13 @@ fabio::Game::run()
 		ImGui_ImplSDL2_NewFrame();
 		ImGui::NewFrame();
 
+		SDL_RenderSetScale(renderer, io.DisplayFramebufferScale.x,
+							io.DisplayFramebufferScale.y);
+
 		/* START */
+
+        SDL_SetRenderDrawColor(this->renderer, 0xFF, 0xFF, 0xFF, 0xFF); // ?
+		SDL_RenderClear(this->renderer);
 
         ImGui::Begin("MainFrame");
 
@@ -101,54 +104,6 @@ fabio::Game::run()
 
 		ImGui::Render();
 		// ImGui::GetIO();
-		SDL_RenderSetScale(renderer, io.DisplayFramebufferScale.x,
-							io.DisplayFramebufferScale.y);
-
-        SDL_SetRenderDrawColor(this->renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-		SDL_RenderClear(this->renderer);
-
-        SDL_SetRenderDrawColor(this->renderer, (GRID_COLOR >> 16) & 0xFF,
-							   (GRID_COLOR >> 8) & 0xFF,
-							   GRID_COLOR & 0xFF,
-							   GRID_COLOR >> 24);
-
-		int winHeight, winWidth;
-		SDL_GetWindowSize(this->win, &winWidth, &winHeight);
-        for (int x = GRID_CELL_SIZE; x < winWidth; x += GRID_CELL_SIZE) {
-            SDL_RenderDrawLine(this->renderer, x, 0, x, winHeight);
-        }
-        for (int y = GRID_CELL_SIZE; y < winHeight; y += GRID_CELL_SIZE) {
-            SDL_RenderDrawLine(this->renderer, 0, y, winWidth, y);
-        }
-
-		int x, y;
-		SDL_GetMouseState(&x, &y);
-		if(std::abs(x - cpx) > 3)
-		{
-			if(x > cpx)
-			{
-				cpx += std::abs(x - cpx) / 100;
-			}
-			else if(x < cpx)
-			{
-				cpx -= std::abs(x - cpx) / 100;
-			}
-		}
-		if(std::abs(y - cpy) > 3)
-		{
-			if(y > cpy)
-			{
-				cpy += std::abs(y - cpy) / 100;
-			}
-			else if(y < cpy)
-			{
-				cpy -= std::abs(y - cpy) / 100;
-			}
-		}
-
-
-		filledCircleRGBA(renderer, cpx, cpy, 100, 255, 0, 0, SDL_ALPHA_OPAQUE);
-
 		ImGui_ImplSDLRenderer_RenderDrawData(ImGui::GetDrawData());
 
 		SDL_RenderPresent(this->renderer);
