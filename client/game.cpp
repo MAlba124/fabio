@@ -1,3 +1,7 @@
+#include <SDL.h>
+#include "SDL2_gfx/SDL2_gfxPrimitives.h"
+#include <cmath>
+
 #include "./include/game.hpp"
 
 #include "./imgui-docking/imgui.h"
@@ -6,7 +10,7 @@
 
 const int WINDOW_HEIGHT = 720;
 const int WINDOW_WIDTH = 1280;
-const int GRID_CELL_SIZE = 50;
+const int GRID_CELL_SIZE = 15;
 const int GRID_COLOR = 0x808080FF;
 
 fabio::Game::Game()
@@ -61,6 +65,7 @@ fabio::Game::run()
     ImGui_ImplSDL2_InitForSDLRenderer(this->win, this->renderer);
     ImGui_ImplSDLRenderer_Init(this->renderer);
 
+	int cpx = 100, cpy = 100;
 	bool done = false;
 	while (!done)
 	{
@@ -90,6 +95,8 @@ fabio::Game::run()
 
         ImGui::End();
 
+
+
 		/* END */
 
 		ImGui::Render();
@@ -104,12 +111,43 @@ fabio::Game::run()
 							   (GRID_COLOR >> 8) & 0xFF,
 							   GRID_COLOR & 0xFF,
 							   GRID_COLOR >> 24);
-        for (int x = GRID_CELL_SIZE; x < WINDOW_WIDTH; x += GRID_CELL_SIZE) {
-            SDL_RenderDrawLine(this->renderer, x, 0, x, WINDOW_HEIGHT);
+
+		int winHeight, winWidth;
+		SDL_GetWindowSize(this->win, &winWidth, &winHeight);
+        for (int x = GRID_CELL_SIZE; x < winWidth; x += GRID_CELL_SIZE) {
+            SDL_RenderDrawLine(this->renderer, x, 0, x, winHeight);
         }
-        for (int y = GRID_CELL_SIZE; y < WINDOW_HEIGHT; y += GRID_CELL_SIZE) {
-            SDL_RenderDrawLine(this->renderer, 0, y, WINDOW_WIDTH, y);
+        for (int y = GRID_CELL_SIZE; y < winHeight; y += GRID_CELL_SIZE) {
+            SDL_RenderDrawLine(this->renderer, 0, y, winWidth, y);
         }
+
+		int x, y;
+		SDL_GetMouseState(&x, &y);
+		if(std::abs(x - cpx) > 3)
+		{
+			if(x > cpx)
+			{
+				cpx += std::abs(x - cpx) / 100;
+			}
+			else if(x < cpx)
+			{
+				cpx -= std::abs(x - cpx) / 100;
+			}
+		}
+		if(std::abs(y - cpy) > 3)
+		{
+			if(y > cpy)
+			{
+				cpy += std::abs(y - cpy) / 100;
+			}
+			else if(y < cpy)
+			{
+				cpy -= std::abs(y - cpy) / 100;
+			}
+		}
+
+
+		filledCircleRGBA(renderer, cpx, cpy, 100, 255, 0, 0, SDL_ALPHA_OPAQUE);
 
 		ImGui_ImplSDLRenderer_RenderDrawData(ImGui::GetDrawData());
 

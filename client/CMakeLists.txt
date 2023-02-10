@@ -3,8 +3,9 @@ cmake_minimum_required(VERSION 3.24)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+        #-Wall -Wextra -Werror
 add_compile_options(
-        -Wall -Wextra -Werror
+        -Wall -Wextra
         -O2
 )
 
@@ -20,6 +21,8 @@ add_executable(Client main.cpp
         imgui-docking/imgui_widgets.cpp
         imgui-docking/backends/imgui_impl_sdl2.cpp
         imgui-docking/backends/imgui_impl_sdlrenderer.cpp
+        SDL2_gfx/SDL2_gfxPrimitives.c
+        SDL2_gfx/SDL2_rotozoom.c
         ui.cpp
         game.cpp
 )
