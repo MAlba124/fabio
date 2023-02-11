@@ -48,7 +48,7 @@ namespace game::player {
          * @brief TODO
          */
        //server::Games& gamesServer;
-       std::shared_ptr<server::Games> gamesServer;
+       //std::shared_ptr<server::Games> gamesServer;
 
        /**
         * @brief Name of the player
@@ -92,7 +92,7 @@ namespace game::player {
          * @param sock The socket to do I/O on
          */
         explicit Player(player::playerID pid,
-                        std::shared_ptr<server::Games> games,
+                        //std::shared_ptr<server::Games> games,
                         std::string n,
                         int bal,
                         asio::ip::tcp::socket sock,
@@ -140,7 +140,7 @@ namespace game::player {
         /**
          * @brief
          */
-         void listGames();
+         //void listGames();
 
          void registerUser();
 

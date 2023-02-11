@@ -43,6 +43,8 @@ namespace net::client
          */
         void connect(std::string addr, int port);
 
+        void disconnect();
+
         /**
          * @brief Destructor
          */

@@ -13,13 +13,13 @@ namespace player = game::player;
 namespace asio = boost::asio;
 
 player::Player::Player(player::playerID pid,
-                       std::shared_ptr<server::Games> games,
+                       //std::shared_ptr<server::Games> games,
                        std::string n,
                        int bal,
                        asio::ip::tcp::socket sock,
                        std::shared_ptr<server::db::DB> db)
     : pID(pid),
-      gamesServer(std::move(games)),
+      //gamesServer(std::move(games)),
       nickname(std::move(n)),
       playerSocket(std::move(sock)),
       balance(bal),
@@ -62,9 +62,9 @@ player::Player::readHeader()
                     case net::common::messageType::Ping:
                         this->sendPong();
                         break;
-                    case net::common::messageType::ListGames:
-                        this->listGames();
-                        break;
+                    //case net::common::messageType::ListGames:
+                    //    this->listGames();
+                    //    break;
                     //case net::common::messageType::InvalidMessage:
                     //    break;
                     //case net::common::messageType::InvalidMessageType:
@@ -228,12 +228,12 @@ player::Player::sendLoginSuccess()
     BOOST_LOG_TRIVIAL(debug) << "Sent UserLoginSuccess (" << this->pID << ')';
 }
 
-void
-player::Player::listGames()
-{
-    std::vector<server::GameInfo> gi = this->gamesServer->getAllGamesInfo();
-    BOOST_LOG_TRIVIAL(trace) << "Number of games: " << gi.size();
-}
+//void
+//player::Player::listGames()
+//{
+//    std::vector<server::GameInfo> gi = this->gamesServer->getAllGamesInfo();
+//    BOOST_LOG_TRIVIAL(trace) << "Number of games: " << gi.size();
+//}
 
 void
 player::Player::registerUser()

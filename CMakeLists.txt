@@ -1,11 +1,12 @@
 cmake_minimum_required(VERSION 3.24)
 
-project(poker VERSION 0.0.1 DESCRIPTION "Poker game")
+project(Fabio VERSION 0.0.1 DESCRIPTION "Trading game")
 
 if(${BUILD_ALL})
     set(BUILD_SERVER True)
     set(BUILD_CLIENT_LIB True)
     set(BUILD_SERVER_TESTS True)
+    set(BUILD_CLIENT True)
 endif()
 
 if(${BUILD_SERVER})
@@ -18,4 +19,7 @@ if(${BUILD_CLIENT_LIB})
 endif()
 if(${BUILD_SERVER_TESTS})
     add_subdirectory(server/test)
+endif()
+if(${BUILD_CLIENT})
+    add_subdirectory(client)
 endif()

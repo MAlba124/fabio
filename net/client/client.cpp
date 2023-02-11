@@ -30,6 +30,15 @@ client::Client::connect(std::string addr, int port = 3355)
         this->readHeader();
 }
 
+
+void
+client::Client::disconnect()
+{
+    if (this->socket.is_open())
+        this->close();
+    this->connected = false;
+}
+
 void
 client::Client::close()
 {
@@ -183,7 +192,8 @@ client::Client::lastMessage()
 bool
 client::Client::isConnected()
 {
-    return this->socket.is_open() && this->connected;
+    //return this->socket.is_open() && this->connected;
+    return this->socket.is_open();
 }
 
 void

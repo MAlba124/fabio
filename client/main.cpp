@@ -1,3 +1,5 @@
+#include <boost/asio.hpp>
+
 #include "./include/game.hpp"
 
 int main(void)

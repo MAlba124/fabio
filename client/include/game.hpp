@@ -13,6 +13,7 @@ namespace fabio
 	{
 		private:
 			bool ok;
+//			net::client::Client& client;
 			SDL_WindowFlags wfs;
 			SDL_Window *win;
 			SDL_Renderer *renderer;

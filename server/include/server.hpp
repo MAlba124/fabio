@@ -8,12 +8,12 @@
 /* Forward declarations to eliminate "'x' was has not been declared" error */
 namespace server
 {
-    class Games;
+    //class Games;
     class Server;
     class DB;
 }
 
-#include "./games.hpp"
+//#include "./games.hpp"
 #include "./player.hpp"
 #include "./database.hpp"
 
@@ -40,7 +40,7 @@ namespace server
         /**
          * @brief Containing all the running/created games
          */
-        std::shared_ptr<Games> _games;
+        //std::shared_ptr<Games> _games;
 
         /**
          * @brief TODO
